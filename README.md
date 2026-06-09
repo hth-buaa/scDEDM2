@@ -245,5 +245,5 @@ If you use scDEDM in your research, please cite:
 ## Related Links
 1. R package is in https://github.com/hth-buaa/scDEDM2.
 2. Specific Guidelines is in https://github.com/hth-buaa/scDEDM2/blob/main/scDEDM2_guide_line.R or https://github.com/hth-buaa/scDEDM2/blob/main/scDEDM2_guide_line.txt.
-3. Experiment results of the paper is in ... . 
-4. The code for figures and some mediate analysis results are in ... .
+3. Experiment results and figures of the scDEDM paper are in https://github.com/hth-buaa/scDEDM_paper_code.
+
