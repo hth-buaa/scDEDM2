@@ -1,4 +1,4 @@
-# scDEDM: Inference of Enhancer-Gene Regulatory Networks from Paired scRNA-seq and scATAC-seq Data
+# scDEDM: Inference of Enhancer-Gene Regulatory Networks from Cell-matched scRNA-seq and scATAC-seq Data
 
 ## Project Overview
 scDEDM is an R package designed to construct enhancer-gene regulatory networks (eGRNs) by integrating paired single-cell RNA sequencing (scRNA-seq) and single-cell assay for transposase-accessible chromatin sequencing (scATAC-seq) data. To infer high-confidence regulatory relationships between transcription factors (TFs), chromatin accessibility peaks, and target genes (TGs), it leverages pseudotemporal ordering, transcription factor binding site (TFBS) prediction, a discrete evolutionary dynamical model (based on Transcription Factor Expression (TFE), Target Gene Activity (TGA), and Target Gene Expression (TGE))，and a hybrid optimization approach (combining genetic algorithms and gradient ascent). 
@@ -60,7 +60,7 @@ library(scDEDM)
 
 ### Data Requirements
 To use scDEDM, you need:
-1. **Paired scRNA-seq and scATAC-seq data**: Both datasets must have identical cell names.
+1. **Cell-matched scRNA-seq and scATAC-seq data**: Both datasets must have identical cell names.
 2. **Cell type annotations**: A metadata column named `seurat_annotations` in both Seurat objects, containing matching cell type labels for each cell.
 3. **scATAC-seq fragment file**: A `_fragments.tsv.gz` file and its corresponding `.tbi` index file (required for Signac-based analysis).
 
@@ -74,7 +74,7 @@ This initial step prepares your input data for downstream analysis by ensuring d
 
 #### Loading Seurat Objects
 - **Example Dataset**: scDEDM provides a workflow using the `pbmcMultiome` dataset (10x Genomics PBMC multi-ome data) in R package SeuratData. 
-- **Custom Data**: For your own data, load paired scRNA-seq and scATAC-seq Seurat objects. If data comes from separate experiments, first establish one-to-one cell correspondence and unify cell identifiers.
+- **Custom Data**: For your own data, load cell-matched scRNA-seq and scATAC-seq Seurat objects. If data comes from separate experiments, first establish one-to-one cell correspondence and unify cell identifiers.
 
 #### Upgrading to Seurat v5
 scDEDM is built on Seurat v5. Convert your scRNA-seq assay from Seurat v4 `Assay` to Seurat v5 `Assay5` if needed.
