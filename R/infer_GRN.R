@@ -6,7 +6,7 @@
 #' It supports selective processing of specific cell types and branches for targeted analysis.
 #'
 #' @param interest_cell_type_branch_data_for_GRN_infer The output of function get_data_for_inferring_GRN.
-#' @param interest_cell_type_tao The output of function get_cell_type_tao.
+#' @param interest_cell_type_tau The output of function get_cell_type_tau.
 #' @param interest_cell_type_branch_model_train The output of function model_train.
 #' @param interest_cell_type_group The output of function cell_grouping.
 #' @param interest_cell_type_genes_pseudotime_info The output of function get_genes_pseudotime_info.
@@ -50,17 +50,25 @@
 #' \item Parallel processing significantly accelerates computation for large datasets
 #' }
 #'
-#' @seealso \code{\link[scDEDS]{R_cal}}, \code{\link[scDEDS]{Hill_cal}}, \code{\link[scDEDS]{S_cal}}
+#' @seealso \code{\link[scDEDM]{R_cal}}, \code{\link[scDEDM]{Hill_cal}}, \code{\link[scDEDM]{S_cal}}
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' interest_cell_type_branch_data_for_GRN_infer = base::readRDS("./5 Infer GRN/interest_cell_type_branch_data_for_GRN_infer.rds")
-#' interest_cell_type_tao = base::readRDS("./3 get iGRN/interest_cell_type_tao.rds")
-#' interest_cell_type_branch_model_train = base::readRDS("./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds")
-#' interest_cell_type_group = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
-#' interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+#' interest_cell_type_branch_data_for_GRN_infer = base::readRDS(
+#'   "./5 Infer GRN/interest_cell_type_branch_data_for_GRN_infer.rds"
+#' )
+#' interest_cell_type_tau = base::readRDS("./3 get iGRN/interest_cell_type_tau.rds")
+#' interest_cell_type_branch_model_train = base::readRDS(
+#'   "./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds"
+#' )
+#' interest_cell_type_group = base::readRDS(
+#'   "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+#' )
+#' interest_cell_type_genes_pseudotime_info = base::readRDS(
+#'   "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+#' )
 #' each = 1000
 #' ncores = parallel::detectCores() - 1 # in Linux
 #' # ncores = 1 # in Windows
@@ -68,7 +76,7 @@
 #' # way 1: one step (If the running memory is sufficient)
 #' interest_cell_type_pGRN = infer_GRN(
 #'   interest_cell_type_branch_data_for_GRN_infer = interest_cell_type_branch_data_for_GRN_infer,
-#'   interest_cell_type_tao = interest_cell_type_tao,
+#'   interest_cell_type_tau = interest_cell_type_tau,
 #'   interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
 #'   interest_cell_type_group = interest_cell_type_group,
 #'   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
@@ -80,7 +88,9 @@
 #' base::saveRDS(interest_cell_type_pGRN, file = "./5 Infer GRN/interest_cell_type_pGRN.rds")
 #'
 #' # way 2: more steps but stable
-#' # If the process is terminated due to memory issues, you can manually continue running it branch by branch (saving the results to interest_cell_type_pGRN).
+#' # If the process is terminated due to memory issues,
+#' # you can manually continue running it branch by branch
+#' # (saving the results to interest_cell_type_pGRN).
 #' interest_cell_type_pGRN = base::list()
 #' for (cell_type in base::names(interest_cell_type_branch_data_for_GRN_infer)) {
 #'   message("Infer cell type ", cell_type, ".")
@@ -89,7 +99,7 @@
 #'     message("Infer cell type ", cell_type, " branch ", n, ".")
 #'     interest_cell_type_pGRN[[cell_type]][[base::paste0("branch", n)]] = infer_GRN(
 #'       interest_cell_type_branch_data_for_GRN_infer = interest_cell_type_branch_data_for_GRN_infer,
-#'       interest_cell_type_tao = interest_cell_type_tao,
+#'       interest_cell_type_tau = interest_cell_type_tau,
 #'       interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
 #'       interest_cell_type_group = interest_cell_type_group,
 #'       interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
@@ -104,7 +114,7 @@
 #' }
 infer_GRN = function(
     interest_cell_type_branch_data_for_GRN_infer = interest_cell_type_branch_data_for_GRN_infer,
-    interest_cell_type_tao = interest_cell_type_tao,
+    interest_cell_type_tau = interest_cell_type_tau,
     interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
     interest_cell_type_group = interest_cell_type_group,
     interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
@@ -135,7 +145,7 @@ infer_GRN = function(
   }
   for (cell_type in range_cell_type) {
     interest_cell_type_pGRN[[cell_type]] = base::list()
-    tao = as.numeric(interest_cell_type_tao[cell_type])
+    tau = as.numeric(interest_cell_type_tau[cell_type])
 
     if (base::is.null(select_branch)) {
       range_branch = 1:(base::length(interest_cell_type_branch_data_for_GRN_infer[[cell_type]]) - 1)
@@ -155,8 +165,12 @@ infer_GRN = function(
       n_part = base::ceiling(N_pred_all / each)
       each_last = N_pred_all - each * (n_part - 1)
 
+      idx = max(ceiling(n_part / 50), 2)
       re_pred_list = base::list()
       for (s in 1:n_part) {
+        if (s %% idx ==1) {
+          print(paste0("Partitioning data progress: ", s, " / ", n_part, ", ", round(s/n_part * 100), "%"))
+        }
         if (s != n_part) {
           re_pred_list[[s]] = re_pred[(each * (s - 1) + 1):(each * s)]
         } else (
@@ -166,6 +180,9 @@ infer_GRN = function(
 
       pGRN_list = base::list()
       for (s in 1:n_part) {
+        if (s %% idx ==1) {
+          print(paste0("Getting training data progress: ", s, " / ", n_part, ", ", round(s/n_part * 100), "%"))
+        }
         pGRN_list[[s]] = base::list()
         pGRN_list[[s]][["theta_p"]] = base::data.frame(base::matrix(
           0, nrow = base::length(re_pred_list[[s]]), ncol = base::length(re_train),
@@ -175,7 +192,7 @@ infer_GRN = function(
           Inf, nrow = base::length(re_pred_list[[s]]), ncol = base::length(re_train),
           dimnames = base::list(re_pred_list[[s]], re_train))
         )
-      }
+      }; rm(idx)
 
       message("Inferring GRN of branch ", n, " of cell type ", cell_type, ".")
       state_data = interest_cell_type_branch_data_for_GRN_infer[[cell_type]][[base::paste0("branch", n)]]
@@ -198,7 +215,7 @@ infer_GRN = function(
                                     seqLength = seqLength,
                                     re_train = re_train,
                                     train_params = train_params,
-                                    tao = tao,
+                                    tau = tau,
                                     Tslot_K = Tslot_K) {
         for (re in RE_PRED) {
           theta_p = base::data.frame(base::matrix(0, nrow = 1, ncol = ncols, dimnames = base::list(re, re_train)))
@@ -210,9 +227,9 @@ infer_GRN = function(
 
           for (re_tr in re_train) {
             pa_best = train_params[[re_tr]]
-            predict_result = stats::optim(par = tao, fn = function(theta) {
-              R = scDEDS::R_cal(
-                theta_TF_TG = theta, tao = tao, r1 = 200,
+            predict_result = stats::optim(par = tau, fn = function(theta) {
+              R = scDEDM::R_cal(
+                theta_TF_TG = theta, tau = tau, r1 = 200,
                 r2 = (pa_best["r.r2_TG"] + pa_best["r.r2_TF"])/2,
                 r3 = 1, r4 = 1000, r5 = 1
               )
@@ -235,20 +252,20 @@ infer_GRN = function(
               u332 = pa_best["u.u332_TG"]
               TGE_tilde = pa_best[base::paste0("E~.E~_TG_K-1.", seqLength)]
               TFE_tilde = pa_best[base::paste0("E~.E~_TF_K-1.", seqLength)]
-              U1_tilde = scDEDS::Hill_cal(x = TGE_tilde, Dissociation_Constant = u11, Hill_Coefficient = u12)
-              U2_tilde = scDEDS::Hill_cal(x = TFE_tilde, Dissociation_Constant = u21, Hill_Coefficient = u22)
-              U1 = scDEDS::Hill_cal(x = TGE[-Length], Dissociation_Constant = u11, Hill_Coefficient = u12)
-              U2 = scDEDS::Hill_cal(x = TFE[-Length], Dissociation_Constant = u21, Hill_Coefficient = u22)
-              U31 = scDEDS::Hill_cal(x = TGA[-Length], Dissociation_Constant = u311, Hill_Coefficient = u312)
-              U32 = scDEDS::Hill_cal(x = TGE[-Length], Dissociation_Constant = u321, Hill_Coefficient = u322)
-              U33 = scDEDS::Hill_cal(x = TGE_tilde[-Length], Dissociation_Constant = u331, Hill_Coefficient = u332)
+              U1_tilde = scDEDM::Hill_cal(x = TGE_tilde, Dissociation_Constant = u11, Hill_Coefficient = u12)
+              U2_tilde = scDEDM::Hill_cal(x = TFE_tilde, Dissociation_Constant = u21, Hill_Coefficient = u22)
+              U1 = scDEDM::Hill_cal(x = TGE[-Length], Dissociation_Constant = u11, Hill_Coefficient = u12)
+              U2 = scDEDM::Hill_cal(x = TFE[-Length], Dissociation_Constant = u21, Hill_Coefficient = u22)
+              U31 = scDEDM::Hill_cal(x = TGA[-Length], Dissociation_Constant = u311, Hill_Coefficient = u312)
+              U32 = scDEDM::Hill_cal(x = TGE[-Length], Dissociation_Constant = u321, Hill_Coefficient = u322)
+              U33 = scDEDM::Hill_cal(x = TGE_tilde[-Length], Dissociation_Constant = u331, Hill_Coefficient = u332)
               v1 = pa_best["v.v1_TG"]
               v2 = pa_best["v.v2_TG"]
               v3 = pa_best["v.v3_TG"]
               base::sum(base::sapply(2:Length, function(K) {
                 prev_idx = K - 1
-                2 * (TFE[prev_idx] + alpha1[prev_idx] * R * scDEDS::S_cal(s = s1, U = U1[prev_idx], U_tilde = U1_tilde[prev_idx]) + beta1[prev_idx] - TFE[K])^2 +
-                  2 * (TGA[prev_idx] + alpha2[prev_idx] * R * scDEDS::S_cal(s = s2, U = U2[prev_idx], U_tilde = U2_tilde[prev_idx]) + beta2[prev_idx] - TGA[K])^2 +
+                2 * (TFE[prev_idx] + alpha1[prev_idx] * R * scDEDM::S_cal(s = s1, U = U1[prev_idx], U_tilde = U1_tilde[prev_idx]) + beta1[prev_idx] - TFE[K])^2 +
+                  2 * (TGA[prev_idx] + alpha2[prev_idx] * R * scDEDM::S_cal(s = s2, U = U2[prev_idx], U_tilde = U2_tilde[prev_idx]) + beta2[prev_idx] - TGA[K])^2 +
                   (TGE[prev_idx] + R * (v1 * U31[prev_idx] - v2 * U32[prev_idx] - v3 * U33[prev_idx]) * Tslot_K[K] + beta3[prev_idx] - TGE[K])^2
               }))
             }, lower = 0.01, upper = 0.99, method = "Brent")
@@ -262,14 +279,14 @@ infer_GRN = function(
         }
 
         pGRN[["theta_p"]] = base::as.data.frame(data.table::rbindlist(base::lapply(
-          pGRN[4:base::length(pGRN)], function(x) x[["theta_p"]]
+          pGRN[3:base::length(pGRN)], function(x) x[["theta_p"]]
         )))
-        base::rownames(pGRN[["theta_p"]]) = base::names(pGRN[4:base::length(pGRN)])
+        base::rownames(pGRN[["theta_p"]]) = base::names(pGRN[3:base::length(pGRN)])
 
         pGRN[["loss"]] = base::as.data.frame(data.table::rbindlist(base::lapply(
-          pGRN[4:base::length(pGRN)], function(x) x[["loss"]]
+          pGRN[3:base::length(pGRN)], function(x) x[["loss"]]
         )))
-        base::rownames(pGRN[["loss"]]) = base::names(pGRN[4:base::length(pGRN)])
+        base::rownames(pGRN[["loss"]]) = base::names(pGRN[3:base::length(pGRN)])
 
         return(pGRN)
       }
@@ -288,11 +305,11 @@ infer_GRN = function(
           seqLength = seqLength,
           re_train = re_train,
           train_params = train_params,
-          tao = tao,
+          tau = tau,
           Tslot_K = Tslot_K
         )},
         mc.cores = ncores
-      )
+      ); gc()
 
       interest_cell_type_pGRN[[cell_type]][[base::paste0("branch", n)]] = base::list()
 

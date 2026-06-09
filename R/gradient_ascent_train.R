@@ -21,7 +21,7 @@
 #' @param monitor Logical. If TRUE, prints monitoring information (iteration number, objective value, and learning rate) at each iteration. Default is FALSE.
 #' @param params_names See in ?f_train_cal.
 #' @param train_data See in ?f_train_cal.
-#' @param tao See in ?f_train_cal.
+#' @param tau See in ?f_train_cal.
 #' @param Tslot_K See in ?f_train_cal.
 #'
 #' @returns
@@ -63,7 +63,7 @@
 #' iterations_grad = 3
 #' ncores = parallel::detectCores() - 1 # in Linux
 #' # ncores = 1 # in Windows
-#' # The settings for the other parameters are inside the function scDEDS::model_train.
+#' # The settings for the other parameters are inside the function scDEDM::model_train.
 #' t = base::Sys.time();result_gradient =  gradient_ascent_train(
 #'   iterations = iterations_grad,
 #'   alpha_lower = 1e-05,
@@ -78,7 +78,7 @@
 #'   monitor = FALSE,
 #'   params_names = params_names,
 #'   train_data = train_data,
-#'   tao = tao,
+#'   tau = tau,
 #'   Tslot_K = Tslot_K
 #' ); base::print(base::Sys.time(); - t)
 #' }
@@ -95,26 +95,26 @@ gradient_ascent_train = function (iterations,
                                   monitor = FALSE,
                                   params_names = params_names,
                                   train_data = train_data,
-                                  tao = tao,
+                                  tau = tau,
                                   Tslot_K = Tslot_K)
 {
   theta = base::as.numeric(init_theta)
-  f0 = scDEDS::f_train_cal(
+  f0 = scDEDM::f_train_cal(
     params = theta,
     params_names = params_names,
     train_data = train_data,
-    tao = tao,
+    tau = tau,
     Tslot_K = Tslot_K
   )
   for (i in 1:iterations) {
-    grad = scDEDS::f_train_cal_gr(
+    grad = scDEDM::f_train_cal_gr(
       params = theta,
       h_max = h_max,
       h_min_percent = h_min_percent,
       ncores = ncores,
       params_names = params_names,
       train_data = train_data,
-      tao = tao,
+      tau = tau,
       Tslot_K = Tslot_K,
       params_upper = params_upper,
       params_lower = params_lower
@@ -126,11 +126,11 @@ gradient_ascent_train = function (iterations,
         base::pmax(theta[grad_need_cal] + al * grad[grad_need_cal], params_lower[grad_need_cal]),
         params_upper[grad_need_cal]
       )
-      -scDEDS::f_train_cal(
+      -scDEDM::f_train_cal(
         params = theta_new,
         params_names = params_names,
         train_data = train_data,
-        tao = tao,
+        tau = tau,
         Tslot_K = Tslot_K
       )
     }, lower = alpha_lower, upper = alpha_upper, method = "Brent")

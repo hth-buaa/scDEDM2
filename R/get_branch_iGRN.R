@@ -45,7 +45,9 @@
 #' @examples
 #' \dontrun{
 #' interest_cell_type_iGRN = base::readRDS("./3 get iGRN/interest_cell_type_iGRN.rds")
-#' interest_cell_type_group = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
+#' interest_cell_type_group = base::readRDS(
+#'   "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+#' )
 #' ncores = parallel::detectCores() - 1 # in Linux
 #' # ncores = 1 # in Windows
 #' interest_cell_type_branch_iGRN = get_branch_iGRN(
@@ -53,7 +55,10 @@
 #'   interest_cell_type_group = interest_cell_type_group,
 #'   ncores = ncores
 #' )
-#' base::saveRDS(interest_cell_type_branch_iGRN, file = "./3 get iGRN/interest_cell_type_branch_iGRN.rds")
+#' base::saveRDS(
+#'   interest_cell_type_branch_iGRN,
+#'   file = "./3 get iGRN/interest_cell_type_branch_iGRN.rds"
+#' )
 #' }
 get_branch_iGRN = function(
     interest_cell_type_iGRN = interest_cell_type_iGRN,

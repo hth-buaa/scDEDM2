@@ -57,23 +57,35 @@
 #' packageVersion("igraph")
 #' remove.packages("igraph")
 #' install_version("igraph", version = "2.0.3")
-#' interest_cell_type_data = base::readRDS("./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment/interest_cell_type_data.rds")
+#' interest_cell_type_data = base::readRDS(paste0(
+#'   "./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment",
+#'   "/interest_cell_type_data.rds"
+#' ))
 #' interest_cell_type_Branches = order_pseudotime_and_divide_branches(interest_cell_type_data)
-#' # Please enter the number of branches based on the pseudotime 2D visualization (e.g., 3) (e.g., 5): 6
-#' # Interactively input the integer vector of cell state order for each branch (based on visualization results in: 2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment/cell_type/).
-#' # Please enter the integer vector of cell state order for branch 1 (space-separated) (e.g. 1 2 3 4) (e.g. 1 2 5):
+#' # ...
+#' # Please enter the number of branches based on the pseudotime 2D visualization:
+#' #   6
+#' # ...
+#' #' Please enter the integer vector of cell state order for branch 1 (space-separated):
 #' #   1 11
-#' # Please enter the integer vector of cell state order for branch 2 (space-separated) (e.g. 1 2 3 4) (e.g. 1 2 5):
+#' # Please enter the integer vector of cell state order for branch 2 (space-separated):
 #' #   1 2 10
-#' # Please enter the integer vector of cell state order for branch 3 (space-separated) (e.g. 1 2 3 4) (e.g. 1 2 5):
+#' # Please enter the integer vector of cell state order for branch 3 (space-separated):
 #' #   1 2 3 9
-#' # Please enter the integer vector of cell state order for branch 4 (space-separated) (e.g. 1 2 3 4) (e.g. 1 2 5):
+#' # Please enter the integer vector of cell state order for branch 4 (space-separated):
 #' #   1 2 3 4 8
-#' # Please enter the integer vector of cell state order for branch 5 (space-separated) (e.g. 1 2 3 4) (e.g. 1 2 5):
+#' # Please enter the integer vector of cell state order for branch 5 (space-separated):
 #' #   1 2 3 4 5 6
-#' # Please enter the integer vector of cell state order for branch 6 (space-separated) (e.g. 1 2 3 4) (e.g. 1 2 5):
+#' # Please enter the integer vector of cell state order for branch 6 (space-separated):
 #' #   1 2 3 4 5 7
-#' base::saveRDS(interest_cell_type_Branches, file = "./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment/interest_cell_type_Branches.rds")
+#' # ...
+#' base::saveRDS(
+#'   interest_cell_type_Branches,
+#'   file = paste0(
+#'     "./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment",
+#'     "/interest_cell_type_Branches.rds"
+#'   )
+#' )
 #' }
 order_pseudotime_and_divide_branches = function(interest_cell_type_data = interest_cell_type_data)
 {

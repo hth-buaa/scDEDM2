@@ -54,7 +54,9 @@
 #' \dontrun{
 #' interest_cell_type = c("CD4 TEM", "cDc")
 #' # interest_cell_type = "Treg"
-#' Basic_Info = base::readRDS("./1.3 Data Preprocessing - Get Expression And Activity Matrix/Basic_Info.rds")
+#' Basic_Info = base::readRDS(
+#'   "./1.3 Data Preprocessing - Get Expression And Activity Matrix/Basic_Info.rds"
+#' )
 #' ncores = parallel::detectCores() - 1 # in Linux
 #' # ncores = 1 # in Windows
 #' interest_cell_type_data = get_interest_cell_type_data(
@@ -62,7 +64,13 @@
 #'   Basic_Info = Basic_Info,
 #'   ncores = ncores
 #' )
-#' base::saveRDS(interest_cell_type_data, file = "./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment/interest_cell_type_data.rds")
+#' base::saveRDS(
+#'   interest_cell_type_data,
+#'   file = paste0(
+#'     "./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment",
+#'     "/interest_cell_type_data.rds"
+#'   )
+#' )
 #' }
 get_interest_cell_type_data = function(
     alpha_gene = 0.99,

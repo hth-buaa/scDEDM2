@@ -10,7 +10,7 @@
 #' Typically choose one from three options: training set data, validation set data, or test set data.
 #' @param params See in ?f_train_cal.
 #' @param params_names See in ?f_train_cal.
-#' @param tao See in ?f_train_cal.
+#' @param tau See in ?f_train_cal.
 #' @param Tslot_K See in ?f_train_cal.
 #'
 #' @returns
@@ -44,12 +44,12 @@
 #'
 #' @examples
 #' \dontrun{
-#' # The settings for the other parameters are inside the function scDEDS::model_train.
+#' # The settings for the other parameters are inside the function scDEDM::model_train.
 #' print(loss_cal(
 #'   data = train_data,
 #'   params = result_gradient$parameters,
 #'   params_names = params_names,
-#'   tao = tao,
+#'   tau = tau,
 #'   Tslot_K = Tslot_K
 #' ))
 #' }
@@ -57,7 +57,7 @@ loss_cal = function (
     data = train_data,
     params = result_gradient$parameters,
     params_names = params_names,
-    tao = tao,
+    tau = tau,
     Tslot_K = Tslot_K
 )
 {
@@ -67,9 +67,9 @@ loss_cal = function (
   TGE = base::as.numeric(data[, base::grep("TGE_", base::colnames(data), value = TRUE)])
   Length = base::length(TFE)
   seqLength = base::seq_len(Length - 1)
-  R = scDEDS::R_cal(
+  R = scDEDM::R_cal(
     theta_TF_TG = base::as.numeric(data[, "theta_i"]),
-    tao = tao,
+    tau = tau,
     r1 = 200,
     r2 = (params["r.r2_TG"] + params["r.r2_TF"])/2,
     r3 = 1,
@@ -95,20 +95,20 @@ loss_cal = function (
   u332 = params["u.u332_TG"]
   TGE_tilde = params[base::paste0("E~.E~_TG_K-1.", seqLength)]
   TFE_tilde = params[base::paste0("E~.E~_TF_K-1.", seqLength)]
-  U1_tilde = scDEDS::Hill_cal(x = TGE_tilde, Dissociation_Constant = u11, Hill_Coefficient = u12)
-  U2_tilde = scDEDS::Hill_cal(x = TFE_tilde, Dissociation_Constant = u21, Hill_Coefficient = u22)
-  U1 = scDEDS::Hill_cal(x = TGE[-Length], Dissociation_Constant = u11, Hill_Coefficient = u12)
-  U2 = scDEDS::Hill_cal(x = TFE[-Length], Dissociation_Constant = u21, Hill_Coefficient = u22)
-  U31 = scDEDS::Hill_cal(x = TGA[-Length], Dissociation_Constant = u311, Hill_Coefficient = u312)
-  U32 = scDEDS::Hill_cal(x = TGE[-Length], Dissociation_Constant = u321, Hill_Coefficient = u322)
-  U33 = scDEDS::Hill_cal(x = TGE_tilde[-Length], Dissociation_Constant = u331, Hill_Coefficient = u332)
+  U1_tilde = scDEDM::Hill_cal(x = TGE_tilde, Dissociation_Constant = u11, Hill_Coefficient = u12)
+  U2_tilde = scDEDM::Hill_cal(x = TFE_tilde, Dissociation_Constant = u21, Hill_Coefficient = u22)
+  U1 = scDEDM::Hill_cal(x = TGE[-Length], Dissociation_Constant = u11, Hill_Coefficient = u12)
+  U2 = scDEDM::Hill_cal(x = TFE[-Length], Dissociation_Constant = u21, Hill_Coefficient = u22)
+  U31 = scDEDM::Hill_cal(x = TGA[-Length], Dissociation_Constant = u311, Hill_Coefficient = u312)
+  U32 = scDEDM::Hill_cal(x = TGE[-Length], Dissociation_Constant = u321, Hill_Coefficient = u322)
+  U33 = scDEDM::Hill_cal(x = TGE_tilde[-Length], Dissociation_Constant = u331, Hill_Coefficient = u332)
   v1 = params["v.v1_TG"]
   v2 = params["v.v2_TG"]
   v3 = params["v.v3_TG"]
   base::sum(base::sapply(2:Length, function(K) {
     prev_idx = K - 1
-    2 * (TFE[prev_idx] + alpha1[prev_idx] * R * scDEDS::S_cal(s = s1, U = U1[prev_idx], U_tilde = U1_tilde[prev_idx]) + beta1[prev_idx] - TFE[K])^2 +
-      2 * (TGA[prev_idx] + alpha2[prev_idx] * R * scDEDS::S_cal(s = s2, U = U2[prev_idx], U_tilde = U2_tilde[prev_idx]) + beta2[prev_idx] - TGA[K])^2 +
+    2 * (TFE[prev_idx] + alpha1[prev_idx] * R * scDEDM::S_cal(s = s1, U = U1[prev_idx], U_tilde = U1_tilde[prev_idx]) + beta1[prev_idx] - TFE[K])^2 +
+      2 * (TGA[prev_idx] + alpha2[prev_idx] * R * scDEDM::S_cal(s = s2, U = U2[prev_idx], U_tilde = U2_tilde[prev_idx]) + beta2[prev_idx] - TGA[K])^2 +
       (TGE[prev_idx] + R * (v1 * U31[prev_idx] - v2 * U32[prev_idx] - v3 * U33[prev_idx]) * Tslot_K[K] + beta3[prev_idx] - TGE[K])^2
   }))
 }

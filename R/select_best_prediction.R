@@ -6,7 +6,7 @@
 #'
 #' @param interest_cell_type_pGRN The output of function infer_GRN.
 #' @param interest_cell_type_branch_model_train The output of model_train.
-#' @param interest_cell_type_tao The output of function get_cell_type_tao.
+#' @param interest_cell_type_tau The output of function get_cell_type_tau.
 #' @param interest_cell_type_genes_pseudotime_info The output of function get_genes_pseudotime_info.
 #' @param fit_loss_quantile_threshold Numeric between 0 and 1. Quantile threshold for filtering predictions based on loss. Default is 0.2 (20th percentile).
 #' @param theta_p_quantile_threshold Numeric between 0 and 1. Quantile threshold for filtering predictions based on regulatory strength. Default is 0.8 (80th percentile).
@@ -52,9 +52,13 @@
 #' @examples
 #' \dontrun{
 #' interest_cell_type_pGRN = base::readRDS("./5 Infer GRN/interest_cell_type_pGRN.rds")
-#' interest_cell_type_branch_model_train = base::readRDS("./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds")
-#' interest_cell_type_tao = base::readRDS("./3 get iGRN/interest_cell_type_tao.rds")
-#' interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+#' interest_cell_type_branch_model_train = base::readRDS(
+#'   "./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds"
+#' )
+#' interest_cell_type_tau = base::readRDS("./3 get iGRN/interest_cell_type_tau.rds")
+#' interest_cell_type_genes_pseudotime_info = base::readRDS(
+#'   "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+#' )
 #' fit_loss_quantile_threshold1 = 0.2
 #' theta_p_quantile_threshold1 = 0.8
 #' fit_loss_upper1 = 0.2
@@ -65,7 +69,7 @@
 #' interest_cell_type_pGRN = select_best_prediction(
 #'   interest_cell_type_pGRN = interest_cell_type_pGRN,
 #'   interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
-#'   interest_cell_type_tao = interest_cell_type_tao,
+#'   interest_cell_type_tau = interest_cell_type_tau,
 #'   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
 #'   fit_loss_quantile_threshold = fit_loss_quantile_threshold1,
 #'   theta_p_quantile_threshold = theta_p_quantile_threshold,
@@ -79,7 +83,7 @@
 select_best_prediction = function(
     interest_cell_type_pGRN = interest_cell_type_pGRN,
     interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
-    interest_cell_type_tao = interest_cell_type_tao,
+    interest_cell_type_tau = interest_cell_type_tau,
     interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
     fit_loss_quantile_threshold = 0.2,
     theta_p_quantile_threshold = 0.8,
@@ -123,7 +127,7 @@ select_best_prediction = function(
         } else (
           re_pred_list[[s]] = re_pred[(each * (s - 1) + 1):N_pred_all]
         )
-      }
+      }; gc()
 
       pGRN_list = base::list()
       for (s in 1:n_part) {
@@ -136,7 +140,7 @@ select_best_prediction = function(
           fit = base::rep(NA, base::length(re_pred_list[[s]])),
           row.names = re_pred_list[[s]]
         )
-      }
+      }; gc()
 
       message("Selecting best theta for each TF-TG of branch ", n, " of cell type ", cell_type, ".")
       loss_max = base::min(
@@ -146,16 +150,16 @@ select_best_prediction = function(
           na.rm = TRUE
         ),
         fit_loss_upper
-      )
+      ); gc()
       theta_p_min = base::max(
         stats::quantile(
           base::unlist(interest_cell_type_pGRN[[cell_type]][[paste0("branch", n)]][["theta_p"]]),
           probs = theta_p_quantile_threshold,
           na.rm = TRUE
         ),
-        interest_cell_type_tao[cell_type],
+        interest_cell_type_tau[cell_type],
         theta_p_lower
-      )
+      ); gc()
 
       process_data_slice = function(pGRN = pGRN_list[[s]],
                                     train_loss_max = train_loss_max,
@@ -212,7 +216,7 @@ select_best_prediction = function(
           theta_p_min = theta_p_min
         )},
         mc.cores = ncores
-      )
+      ); gc()
 
       message("Summarizing best_result of this branch.")
       interest_cell_type_pGRN[[cell_type]][[base::paste0("branch", n)]][["best_result"]] =

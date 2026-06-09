@@ -4,12 +4,12 @@
 \alias{R_cal}
 \title{The function R in the evolutionary equations of the paper}
 \usage{
-R_cal(theta_TF_TG, tao, r1 = 200, r2, r3 = 1, r4 = 1000, r5 = 1)
+R_cal(theta_TF_TG, tau, r1 = 200, r2, r3 = 1, r4 = 1000, r5 = 1)
 }
 \arguments{
 \item{theta_TF_TG}{Numeric (vector). Regulatory strength of transcription factor TF on target gene TG}
 
-\item{tao}{Numeric from 0 to 1. Regulatory threshold τ.
+\item{tau}{Numeric from 0 to 1. Regulatory threshold τ.
 If regulatory strength θ > τ, a regulatory relationship is confirmed (positive sample); o
 therwise, it is considered a negative sample.}
 
@@ -33,7 +33,7 @@ The function R in the evolutionary equations of the paper
 \dontrun{
 R = R_cal(
   theta_TF_TG = c(0.18, 0.23),
-  tao = 0.323,
+  tau = 0.323,
   r1 = 200,
   r2 = 1,
   r3 = 1,

@@ -82,7 +82,9 @@ The function uses a stratified sampling approach to ensure that both the top reg
 \examples{
 \dontrun{
 interest_cell_type_branch_iGRN = base::readRDS("./3 get iGRN/interest_cell_type_branch_iGRN.rds")
-interest_cell_type_group = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
+interest_cell_type_group = base::readRDS(
+  "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+)
 top_n_for_max_theta_in_each_regulon = 1
 max_theta_retention_rate_in_tops = 0.8
 max_theta_retention_rate_in_all = 0.8

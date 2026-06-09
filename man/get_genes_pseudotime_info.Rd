@@ -7,8 +7,25 @@
 get_genes_pseudotime_info(
   interest_cell_type_Branches = interest_cell_type_Branches,
   interest_cell_type_data = interest_cell_type_data,
-  alpha_gene = 0.7,
+  alpha_TF = 0.7,
+  alpha_TG = 0.7,
   alpha_cell = 0.9,
+  w_TFNER = 1,
+  w_TFNERR = 0.6,
+  w_TFNEA = 0.8,
+  w_TFNEAR = 0.4,
+  w_TFNAR = 0.9,
+  w_TFNARR = 0.5,
+  w_TFNAA = 0.7,
+  w_TFNAAR = 0.3,
+  w_TGNER = 0.3,
+  w_TGNERR = 0.1,
+  w_TGNEA = 0.3,
+  w_TGNEAR = 0.1,
+  w_TGNAR = 1,
+  w_TGNARR = 1,
+  w_TGNAA = 0.3,
+  w_TGNAAR = 0.1,
   ncores = 1
 )
 }
@@ -17,11 +34,43 @@ get_genes_pseudotime_info(
 
 \item{interest_cell_type_data}{The output of function get_interest_cell_type_data}
 
-\item{alpha_gene}{Numeric (0-1). Threshold for gene filtering based on zero-expression rate.
-Genes with zero-expression rate higher than this value will be removed. Default is 0.7.}
+\item{alpha_TF}{Numeric (0 to 1). Threshold for TF filtering based on TF Importance Score (TFIS). TFs with TFIS above this quantile will be retained. Default is 0.7.}
 
-\item{alpha_cell}{Numeric (0-1). Threshold for cell filtering based on zero-expression rate.
-Cells with zero-expression rate higher than this value will be removed. Default is 0.9.}
+\item{alpha_TG}{Numeric (0 to 1). Threshold for TG filtering based on TG Importance Score (TGIS). TGs with TGIS above this quantile will be retained. Default is 0.7.}
+
+\item{alpha_cell}{Numeric (0 to 1). Threshold for cell filtering based on zero-expression rate. Cells with zero-expression rate higher than this value will be removed. Default is 0.9.}
+
+\item{w_TFNER}{Numeric (-0.2 to 1). Weight for TF Non-Zero Expression Ratio in TFIS calculation. Default is 1.}
+
+\item{w_TFNERR}{Numeric (-0.2 to 1). Weight for TF Non-zero Expression Ratio normalized Rank (max corresponds to 1, min to 0) in TFIS calculation. Default is 0.6.}
+
+\item{w_TFNEA}{Numeric (-0.2 to 1). Weight for TF normalized (divided by max) Non-zero Expression Average in TFIS calculation. Default is 0.8.}
+
+\item{w_TFNEAR}{Numeric (-0.2 to 1). Weight for TF normalized (divided by max) Non-zero Expression Average Rank (max corresponds to 1, min to 0) in TFIS calculation. Default is 0.4.}
+
+\item{w_TFNAR}{Numeric (-0.2 to 1). Weight for TF Non-Zero Activity Ratio in TFIS calculation. Default is 0.9.}
+
+\item{w_TFNARR}{Numeric (-0.2 to 1). Weight for TF Non-zero Activity Ratio normalized Rank (max corresponds to 1, min to 0) in TFIS calculation. Default is 0.5.}
+
+\item{w_TFNAA}{Numeric (-0.2 to 1). Weight for TF normalized (divided by max) Non-zero Activity Average in TFIS calculation. Default is 0.7.}
+
+\item{w_TFNAAR}{Numeric (-0.2 to 1). Weight for TF normalized (divided by max) Non-zero Activity Average Rank (max corresponds to 1, min to 0) in TFIS calculation. Default is 0.3.}
+
+\item{w_TGNER}{Numeric (-0.2 to 1). Weight for TG Non-Zero Expression Ratio in TGIS calculation. Default is 0.3.}
+
+\item{w_TGNERR}{Numeric (-0.2 to 1). Weight for TG Non-zero Expression Ratio normalized Rank (max corresponds to 1, min to 0) in TGIS calculation. Default is 0.1.}
+
+\item{w_TGNEA}{Numeric (-0.2 to 1). Weight for TG normalized (divided by max) Non-zero Expression Average in TGIS calculation. Default is 0.3.}
+
+\item{w_TGNEAR}{Numeric (-0.2 to 1). Weight for TG normalized (divided by max) Non-zero Expression Average Rank (max corresponds to 1, min to 0) in TGIS calculation. Default is 0.1.}
+
+\item{w_TGNAR}{Numeric (-0.2 to 1). Weight for TG Non-Zero Activity Ratio in TGIS calculation. Default is 1.}
+
+\item{w_TGNARR}{Numeric (-0.2 to 1). Weight for TG Non-zero Activity Ratio normalized Rank (max corresponds to 1, min to 0) in TGIS calculation. Default is 1.}
+
+\item{w_TGNAA}{Numeric (-0.2 to 1). Weight for TG normalized (divided by max) Non-zero Activity Average in TGIS calculation. Default is 0.3.}
+
+\item{w_TGNAAR}{Numeric (-0.2 to 1). Weight for TG normalized (divided by max) Non-zero Activity Average Rank (max corresponds to 1, min to 0) in TGIS calculation. Default is 0.1.}
 
 \item{ncores}{See ?get_interest_cell_type_data.}
 }
@@ -41,13 +90,18 @@ All vectors are ordered by pseudotime indices within each branch.
 \description{
 This function processes single-cell multi-omics data to extract temporal expression and activity profiles for transcription factors (TFs) and target genes (TGs) along developmental trajectories.
 It performs rigorous quality filtering, maps cells to pseudotime indices, normalizes data, and returns organized temporal profiles for downstream GRN inference.
+This function processes single-cell multi-omics data to extract temporal expression and activity profiles for transcription factors (TFs) and target genes (TGs) along developmental trajectories.
+It performs rigorous quality filtering based on multi-dimensional gene importance scores, maps cells to pseudotime indices, normalizes data, and returns organized temporal profiles for downstream GRN inference.
 }
 \details{
 The function performs the following processing steps for each cell type and branch:
 \enumerate{
-\item Applies iterative quality filtering based on zero-expression rates
+\item Calculates 8-dimensional features for both TFs and TGs, including non-zero expression ratio, its normalized rank, normalized non-zero expression average, its normalized rank, and the corresponding four metrics for activity data
+\item The range for all weight parameters (those starting with w_) is recommended to be –0.2 to 1. Since all features are positive (higher feature values indicate greater importance), positive weights are expected. However, slightly negative weights (between –0.2 and 0) are acceptable for less important or irrelevant features.
+\item Computes TF Importance Score (TFIS) and TG Importance Score (TGIS) as weighted sums of the 8 features using user-specified weights
+\item Applies iterative quality filtering: retains TFs with TFIS > \code{alpha_TF} quantile, TGs with TGIS > \code{alpha_TG} quantile, and cells with zero-expression rate ≤ \code{alpha_cell}
 \item Maps cells to pseudotime indices (k~ values) for temporal ordering
-\item Normalizes both expression and activity matrices using Seurat's methods
+\item Normalizes both expression and activity matrices using Seurat's \code{NormalizeData} method
 \item Extracts and orders temporal profiles for TFs and TGs
 \item Returns organized data structures ready for dynamic GRN inference
 }
@@ -56,25 +110,54 @@ The function performs the following processing steps for each cell type and bran
 Important considerations:
 \itemize{
 \item Alpha parameters are hyperparameters that significantly affect results
+\item The 8-dimensional weighting scheme allows flexible integration of expression and activity data for gene selection
 \item Output vectors are ordered by pseudotime, enabling time-series analysis
 \item Uses parallel processing in Linux for efficient handling of multiple cell types
+\item After the function runs, it is crucial to check the non-zero ratios in the resulting vectors: for all TF expression vectors, all TG activity vectors, and all TG expression vectors; excessively low ratios may adversely affect or prevent subsequent cell grouping
 }
 }
 \examples{
 \dontrun{
-interest_cell_type_Branches = base::readRDS("./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment/interest_cell_type_Branches.rds")
-interest_cell_type_data = base::readRDS("./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment/interest_cell_type_data.rds")
-alpha_gene = 0.7
-alpha_cell = 0.9
+interest_cell_type_Branches = base::readRDS(paste0(
+  "./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment",
+  "/interest_cell_type_Branches.rds"
+))
+interest_cell_type_data = base::readRDS(paste0(
+  "./2.1 Data Processing - Pseudotime Analysis And Cell Branching Assignment",
+  "/interest_cell_type_data.rds"
+))
+alpha_TF = 0.7; alpha_TG = 0.7; alpha_cell = 0.9
+w_TFNER = 1; w_TFNERR = 0.6; w_TFNEA = 0.8; w_TFNEAR = 0.4
+w_TFNAR = 0.9; w_TFNARR = 0.5; w_TFNAA = 0.7; w_TFNAAR = 0.3
+w_TGNER = 0.3; w_TGNERR = 0.1; w_TGNEA = 0.3; w_TGNEAR = 0.1
+w_TGNAR = 1; w_TGNARR = 1; w_TGNAA = 0.3; w_TGNAAR = 0.1
 ncores = parallel::detectCores() - 1 # in Linux
 # ncores = 1 # in Windows
 interest_cell_type_genes_pseudotime_info = get_genes_pseudotime_info(
   interest_cell_type_Branches = interest_cell_type_Branches,
   interest_cell_type_data = interest_cell_type_data,
-  alpha_gene = alpha_gene,
-  alpha_cell = alpha_cell,
+  alpha_TF = alpha_TF, alpha_TG = alpha_TG, alpha_cell = alpha_cell,
+  w_TFNER = w_TFNER, w_TFNERR = w_TFNERR, w_TFNEA = w_TFNEA, w_TFNEAR = w_TFNEAR,
+  w_TFNAR = w_TFNAR, w_TFNARR = w_TFNARR, w_TFNAA = w_TFNAA, w_TFNAAR = w_TFNAAR,
+  w_TGNER = w_TGNER, w_TGNERR = w_TGNERR, w_TGNEA = w_TGNEA, w_TGNEAR = w_TGNEAR,
+  w_TGNAR = w_TGNAR, w_TGNARR = w_TGNARR, w_TGNAA = w_TGNAA, w_TGNAAR = w_TGNAAR,
   ncores = ncores
 )
-base::saveRDS(interest_cell_type_genes_pseudotime_info, file = "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+# Check minimum nonzero frequency
+min_nonzero_freq = 1.0
+for (i in seq_along(interest_cell_type_genes_pseudotime_info)) {
+  for (j in 1:3) {
+    for (k in seq_along(interest_cell_type_genes_pseudotime_info[[i]][[j]])) {
+      df = interest_cell_type_genes_pseudotime_info[[i]][[j]][[k]]
+      nonzero_freq = rowSums(df != 0) / ncol(df)
+      min_nonzero_freq = min(min_nonzero_freq, nonzero_freq)
+    }
+  }
+}
+cat("min_nonzero_freq: ", min_nonzero_freq, "\n"); rm(min_nonzero_freq, df, nonzero_freq)
+base::saveRDS(
+  interest_cell_type_genes_pseudotime_info,
+  file = "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+)
 }
 }

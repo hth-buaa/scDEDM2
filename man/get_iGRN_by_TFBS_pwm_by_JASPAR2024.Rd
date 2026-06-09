@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_iGRN_by_TFBS_pwm_by_JASPAR2024.R
 \name{get_iGRN_by_TFBS_pwm_by_JASPAR2024}
 \alias{get_iGRN_by_TFBS_pwm_by_JASPAR2024}
-\title{Construct Standard Gene Regulatory Networks (iGRNs) from Transcription Factor Binding Sites (TFBS) Position Weight Matrices PWMs}
+\title{Construct Initial Gene Regulatory Networks (iGRNs) from Transcription Factor Binding Sites (TFBS) Position Weight Matrices PWMs}
 \usage{
 get_iGRN_by_TFBS_pwm_by_JASPAR2024(
   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
@@ -49,7 +49,7 @@ A named list (by cell type) where each element is a matrix (its class is data.fr
 The matrices are sparse, with most values being 0 indicating no predicted regulatory relationship.
 }
 \description{
-This function constructs standard gene regulatory networks (iGRNs) by predicting transcription factor binding sites (TFBS) using position weight matrices (PWMs) from the JASPAR2024 database.
+This function constructs initial gene regulatory networks (iGRNs) by predicting transcription factor binding sites (TFBS) using position weight matrices (PWMs) from the JASPAR2024 database.
 It maps transcription factors (TFs) to target genes (TGs) based on PWM matching scores in promoter regions,
 generating TF-TG association matrices for each cell type.
 }
@@ -89,24 +89,31 @@ For each cell type, the function:
 
 \examples{
 \dontrun{
-interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+interest_cell_type_genes_pseudotime_info = base::readRDS(
+  "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+)
 promoter_range = 50
-results_identify_TGs = base::readRDS("./1.1 Data Preprocessing - Identify TGs By Annotation/results_identify_TGs.rds")
+results_identify_TGs = base::readRDS(
+  "./1.1 Data Preprocessing - Identify TGs By Annotation/results_identify_TGs.rds"
+)
 library(BSgenome.Hsapiens.UCSC.hg38)
 min_score_for_matchPWM = "80\%"
 ncores = ceiling(parallel::detectCores() / 2) # in Linux
 # ncores = 1 # in Windows
-interest_cell_type_iGRN_all_TGTF_pairs = get_iGRN_by_TFBS_pwm_by_JASPAR2024(
+interest_cell_type_iGRN = get_iGRN_by_TFBS_pwm_by_JASPAR2024(
   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
   promoter_range = promoter_range,
   results_identify_TGs = results_identify_TGs,
   genome = BSgenome.Hsapiens.UCSC.hg38,
   min_score_for_matchPWM = min_score_for_matchPWM,
   species = "Homo sapiens",
-  collection = c("CORE", "CNE", "PHYLOFACTS", "SPLICE", "POLII", "FAM", "PBM", "PBM_HOMEO", "PBM_HLH", "UNVALIDATED"),
+  collection = c(
+    "CORE", "CNE", "PHYLOFACTS", "SPLICE", "POLII", "FAM",
+    "PBM", "PBM_HOMEO", "PBM_HLH", "UNVALIDATED"
+  ),
   output_predicted_TFBS = FALSE,
   ncores = ncores
 )
-base::saveRDS(interest_cell_type_iGRN_all_TGTF_pairs, file = "./3 get iGRN/interest_cell_type_iGRN_all_TGTF_pairs.rds")
+base::saveRDS(interest_cell_type_iGRN, file = "./3 get iGRN/interest_cell_type_iGRN.rds")
 }
 }

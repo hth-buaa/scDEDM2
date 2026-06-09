@@ -62,7 +62,9 @@ Important considerations:
 \examples{
 \dontrun{
 interest_cell_type_branch_iGRN = base::readRDS("./3 get iGRN/interest_cell_type_branch_iGRN.rds")
-interest_cell_type_group = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
+interest_cell_type_group = base::readRDS(
+  "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+)
 ncores = parallel::detectCores() - 1 # in Linux
 # ncores = 1 # in Windows
 n_part = ncores
@@ -72,6 +74,9 @@ interest_cell_type_branch_data_for_GRN_infer = get_data_for_inferring_GRN(
   n_part = n_part,
   ncores = ncores
 )
-base::saveRDS(interest_cell_type_branch_data_for_GRN_infer, file = "./5 Infer GRN/interest_cell_type_branch_data_for_GRN_infer.rds")
+base::saveRDS(
+  interest_cell_type_branch_data_for_GRN_infer,
+  file = "./5 Infer GRN/interest_cell_type_branch_data_for_GRN_infer.rds"
+)
 }
 }

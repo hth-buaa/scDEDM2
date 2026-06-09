@@ -42,7 +42,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' interest_cell_type_iGRN_all_TGTF_pairs = base::readRDS("./3 get iGRN/interest_cell_type_iGRN_all_TGTF_pairs.rds")
+#' interest_cell_type_iGRN_all_TGTF_pairs = base::readRDS(
+#'   "./3 get iGRN/interest_cell_type_iGRN_all_TGTF_pairs.rds"
+#' )
 #' interest_cell_type_branch_iGRN = base::readRDS("./3 get iGRN/interest_cell_type_branch_iGRN.rds")
 #' interest_cell_type_iGRN = get_iGRN(
 #'   interest_cell_type_iGRN_all_TGTF_pairs = interest_cell_type_iGRN_all_TGTF_pairs,

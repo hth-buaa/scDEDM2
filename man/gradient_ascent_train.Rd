@@ -18,7 +18,7 @@ gradient_ascent_train(
   monitor = FALSE,
   params_names = params_names,
   train_data = train_data,
-  tao = tao,
+  tau = tau,
   Tslot_K = Tslot_K
 )
 }
@@ -52,7 +52,7 @@ Larger core counts, fewer cell groups, and fewer genes correspond to shorter run
 
 \item{train_data}{See in ?f_train_cal.}
 
-\item{tao}{See in ?f_train_cal.}
+\item{tau}{See in ?f_train_cal.}
 
 \item{Tslot_K}{See in ?f_train_cal.}
 }
@@ -95,7 +95,7 @@ Important considerations:
 iterations_grad = 3
 ncores = parallel::detectCores() - 1 # in Linux
 # ncores = 1 # in Windows
-# The settings for the other parameters are inside the function scDEDS::model_train.
+# The settings for the other parameters are inside the function scDEDM::model_train.
 t = base::Sys.time();result_gradient =  gradient_ascent_train(
   iterations = iterations_grad,
   alpha_lower = 1e-05,
@@ -110,7 +110,7 @@ t = base::Sys.time();result_gradient =  gradient_ascent_train(
   monitor = FALSE,
   params_names = params_names,
   train_data = train_data,
-  tao = tao,
+  tau = tau,
   Tslot_K = Tslot_K
 ); base::print(base::Sys.time(); - t)
 }

@@ -62,7 +62,9 @@
 #'
 #' @examples
 #' \dontrun{
-#' interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+#' interest_cell_type_genes_pseudotime_info = base::readRDS(
+#'   "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+#' )
 #' points_x_for_fitting_nc_and_nmin = c(280, 450, 650)
 #' points_y_for_fitting_nc_and_nmin = c(5, 10, 15)
 #' ncores = parallel::detectCores() - 1 # In Linux.
@@ -73,7 +75,10 @@
 #'   points_y_for_fitting_nc_and_nmin = points_y_for_fitting_nc_and_nmin,
 #'   ncores = ncores
 #' )
-#' base::saveRDS(interest_cell_type_group, file = "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
+#' base::saveRDS(
+#'   interest_cell_type_group,
+#'   file = "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+#' )
 #' }
 cell_grouping = function(
     interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
@@ -249,7 +254,7 @@ cell_grouping = function(
       message("Calculating the cell group counts per group for branch ", i, ".")
       Branches_n_k[[i]] = numeric(base::ceiling(Branches_n_cell[[i]] / n_min[i]))
     }
-    message("Initializing minimum cell count thresholds for all branches: ", n_min, ".")
+    message("Initializing minimum cell count thresholds for all branches: ", paste(n_min, collapse = ","), ".")
     message("Initializing cell group counts for all branches.")
 
     message("Preparing to execute cell grouping algorithm.")

@@ -8,7 +8,7 @@ model_train(
   interest_cell_type_branch_training_set = interest_cell_type_branch_training_set,
   interest_cell_type_branch_init_params = interest_cell_type_branch_init_params,
   interest_cell_type_group = interest_cell_type_group,
-  interest_cell_type_tao = interest_cell_type_tao,
+  interest_cell_type_tau = interest_cell_type_tau,
   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
   max_epochs = 1000,
   early_stop = 10,
@@ -34,7 +34,7 @@ model_train(
 
 \item{interest_cell_type_group}{The output of function cell_grouping.}
 
-\item{interest_cell_type_tao}{The output of function get_cell_type_tao.}
+\item{interest_cell_type_tau}{The output of function get_cell_type_tau.}
 
 \item{interest_cell_type_genes_pseudotime_info}{The output of function get_genes_pseudotime_info.}
 
@@ -76,7 +76,7 @@ A nested list organized by cell type and branch, containing:
 \item \code{re}: Regulon name
 \item \code{train_data}: Training data used
 \item \code{Tslot_K}: Psudotime intervals
-\item \code{tao}: Regulatory threshold τ. If regulatory strength θ > τ, a regulatory relationship is confirmed (positive sample); o therwise, it is considered a negative sample.
+\item \code{tau}: Regulatory threshold τ. If regulatory strength θ > τ, a regulatory relationship is confirmed (positive sample); o therwise, it is considered a negative sample.
 \item \code{f_value_train}: Objective function values
 \item \code{params_data_frame}: Parameters of each training set
 \item \code{loss_train}: Training loss history
@@ -125,11 +125,19 @@ Important considerations:
 }
 \examples{
 \dontrun{
-interest_cell_type_branch_training_set = base::readRDS("./4.1 Build Prediction Model - Select Training Set/interest_cell_type_branch_training_set.rds")
-interest_cell_type_branch_init_params = base::readRDS("./4.2 BUild Prediction Model/interest_cell_type_branch_init_params.rds")
-interest_cell_type_group = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
-interest_cell_type_tao = base::readRDS("./3 get iGRN/interest_cell_type_tao.rds")
-interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+interest_cell_type_branch_training_set = base::readRDS(
+  "./4.1 Build Prediction Model - Select Training Set/interest_cell_type_branch_training_set.rds"
+)
+interest_cell_type_branch_init_params = base::readRDS(
+  "./4.2 BUild Prediction Model/interest_cell_type_branch_init_params.rds"
+)
+interest_cell_type_group = base::readRDS(
+  "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+)
+interest_cell_type_tau = base::readRDS("./3 get iGRN/interest_cell_type_tau.rds")
+interest_cell_type_genes_pseudotime_info = base::readRDS(
+  "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+)
 
 max_epochs = 50
 early_stop = 5
@@ -155,16 +163,28 @@ interest_cell_type_branch_model_train = model_train(
   interest_cell_type_branch_training_set = interest_cell_type_branch_training_set,
   interest_cell_type_branch_init_params = interest_cell_type_branch_init_params,
   interest_cell_type_group = interest_cell_type_group,
-  interest_cell_type_tao = interest_cell_type_tao,
+  interest_cell_type_tau = interest_cell_type_tau,
   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
-  max_epochs = max_epochs, early_stop = early_stop,
-  popSize_ga = popSize_ga, maxiter_ga = maxiter_ga, pcrossover_ga = pcrossover_ga, pmutation_ga = pmutation_ga, parallel_ga = parallel_ga, seed_ga = 123,
-  iterations_grad = iterations_grad, ncores_grad = ncores_grad,
-  theta_difference_threshold = theta_difference_threshold, fit_loss_threshold = fit_loss_threshold, ncores = ncores
+  max_epochs = max_epochs,
+  early_stop = early_stop,
+  popSize_ga = popSize_ga,
+  maxiter_ga = maxiter_ga,
+  pcrossover_ga = pcrossover_ga,
+  pmutation_ga = pmutation_ga,
+  parallel_ga = parallel_ga,
+  seed_ga = 123,
+  iterations_grad = iterations_grad,
+  ncores_grad = ncores_grad,
+  theta_difference_threshold = theta_difference_threshold,
+  fit_loss_threshold = fit_loss_threshold,
+  ncores = ncores
 )
-base::saveRDS(interest_cell_type_branch_model_train, file = "./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds")
+base::saveRDS(
+  interest_cell_type_branch_model_train,
+  file = "./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds"
+)
 }
 }
 \seealso{
-\code{\link[GA]{ga}}, \code{\link[scDEDS]{f_train_cal}}, \code{\link[scDEDS]{loss_cal}}, \code{\link[scDEDS]{theta_p_cal}}
+\code{\link[GA]{ga}}, \code{\link[scDEDM]{f_train_cal}}, \code{\link[scDEDM]{loss_cal}}, \code{\link[scDEDM]{theta_p_cal}}
 }

@@ -15,7 +15,7 @@
 #' Larger core counts, fewer cell groups, and fewer genes correspond to shorter runtime, while the total available RAM dictates the maximum number of cores that can participate in parallel computing.
 #' @param params_names See in ?f_train_cal.
 #' @param train_data See in ?f_train_cal.
-#' @param tao See in ?f_train_cal.
+#' @param tau See in ?f_train_cal.
 #' @param Tslot_K See in ?f_train_cal.
 #' @param params_upper Numeric vector. Upper bounds for each parameter, used to determine the maximum step size in finite difference approximation.
 #' @param params_lower Lower bounds for each parameter, used to determine the minimum step size in finite difference approximation.
@@ -36,7 +36,7 @@
 #' @note
 #' Important considerations:
 #' \itemize{
-#' \item Depends on \code{scDEDS::f_train_cal} for objective function calculation
+#' \item Depends on \code{scDEDM::f_train_cal} for objective function calculation
 #' \item Uses forward difference approximation
 #' \item Parallel processing significantly speeds up computation for high-dimensional parameter spaces
 #' \item Adaptive step sizing helps balance numerical precision and computational stability
@@ -52,7 +52,7 @@
 #' h_max = 0.01
 #' h_min_percent = 0.01
 #' ncores = ceiling(detectCores() / 2) # In Linux.
-#' # The settings for the other parameters are inside the function scDEDS::gradient_ascent_train.
+#' # The settings for the other parameters are inside the function scDEDM::gradient_ascent_train.
 #' temp_grad = f_train_cal_gr(
 #'   params,
 #'   h_max = h_max,
@@ -60,7 +60,7 @@
 #'   ncores = ncores,
 #'   params_names = params_names,
 #'   train_data = train_data,
-#'   tao = tao,
+#'   tau = tau,
 #'   Tslot_K = Tslot_K,
 #'   params_upper = params_upper,
 #'   params_lower = params_lower
@@ -72,29 +72,29 @@ f_train_cal_gr = function (params,
                            ncores = 1,
                            params_names = params_names,
                            train_data = train_data,
-                           tao = tao,
+                           tau = tau,
                            Tslot_K = Tslot_K,
                            params_upper = params_upper,
                            params_lower = params_lower)
 {
   vec = base::as.numeric(params)
   n = base::length(vec)
-  f0 = scDEDS::f_train_cal(
+  f0 = scDEDM::f_train_cal(
     params = vec,
     params_names = params_names,
     train_data = train_data,
-    tao = tao,
+    tau = tau,
     Tslot_K = Tslot_K
   )
   h_vec = base::pmin(base::rep(h_max, n), (params_upper - params_lower) * h_min_percent)
   grad = base::unlist(parallel::mclapply(1:n, function(i) {
     par_perturb = vec
     par_perturb[i] = vec[i] + h_vec[i]
-    gr = (scDEDS::f_train_cal(
+    gr = (scDEDM::f_train_cal(
       params = par_perturb,
       params_names = params_names,
       train_data = train_data,
-      tao = tao,
+      tau = tau,
       Tslot_K = Tslot_K
     ) - f0)/h_vec[i]
     rm(list = base::setdiff(base::ls(), "gr"))

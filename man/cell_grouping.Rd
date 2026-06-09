@@ -75,7 +75,9 @@ The grouping algorithm follows these steps for each branch:
 
 \examples{
 \dontrun{
-interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+interest_cell_type_genes_pseudotime_info = base::readRDS(
+  "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+)
 points_x_for_fitting_nc_and_nmin = c(280, 450, 650)
 points_y_for_fitting_nc_and_nmin = c(5, 10, 15)
 ncores = parallel::detectCores() - 1 # In Linux.
@@ -86,6 +88,9 @@ interest_cell_type_group = cell_grouping(
   points_y_for_fitting_nc_and_nmin = points_y_for_fitting_nc_and_nmin,
   ncores = ncores
 )
-base::saveRDS(interest_cell_type_group, file = "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
+base::saveRDS(
+  interest_cell_type_group,
+  file = "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+)
 }
 }

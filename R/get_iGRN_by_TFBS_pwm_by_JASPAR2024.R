@@ -1,7 +1,7 @@
-#' @title Construct Standard Gene Regulatory Networks (iGRNs) from Transcription Factor Binding Sites (TFBS) Position Weight Matrices PWMs
+#' @title Construct Initial Gene Regulatory Networks (iGRNs) from Transcription Factor Binding Sites (TFBS) Position Weight Matrices PWMs
 #'
 #' @description
-#' This function constructs standard gene regulatory networks (iGRNs) by predicting transcription factor binding sites (TFBS) using position weight matrices (PWMs) from the JASPAR2024 database.
+#' This function constructs initial gene regulatory networks (iGRNs) by predicting transcription factor binding sites (TFBS) using position weight matrices (PWMs) from the JASPAR2024 database.
 #' It maps transcription factors (TFs) to target genes (TGs) based on PWM matching scores in promoter regions,
 #' generating TF-TG association matrices for each cell type.
 #'
@@ -65,25 +65,32 @@
 #'
 #' @examples
 #' \dontrun{
-#' interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+#' interest_cell_type_genes_pseudotime_info = base::readRDS(
+#'   "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+#' )
 #' promoter_range = 50
-#' results_identify_TGs = base::readRDS("./1.1 Data Preprocessing - Identify TGs By Annotation/results_identify_TGs.rds")
+#' results_identify_TGs = base::readRDS(
+#'   "./1.1 Data Preprocessing - Identify TGs By Annotation/results_identify_TGs.rds"
+#' )
 #' library(BSgenome.Hsapiens.UCSC.hg38)
 #' min_score_for_matchPWM = "80%"
 #' ncores = ceiling(parallel::detectCores() / 2) # in Linux
 #' # ncores = 1 # in Windows
-#' interest_cell_type_iGRN_all_TGTF_pairs = get_iGRN_by_TFBS_pwm_by_JASPAR2024(
+#' interest_cell_type_iGRN = get_iGRN_by_TFBS_pwm_by_JASPAR2024(
 #'   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
 #'   promoter_range = promoter_range,
 #'   results_identify_TGs = results_identify_TGs,
 #'   genome = BSgenome.Hsapiens.UCSC.hg38,
 #'   min_score_for_matchPWM = min_score_for_matchPWM,
 #'   species = "Homo sapiens",
-#'   collection = c("CORE", "CNE", "PHYLOFACTS", "SPLICE", "POLII", "FAM", "PBM", "PBM_HOMEO", "PBM_HLH", "UNVALIDATED"),
+#'   collection = c(
+#'     "CORE", "CNE", "PHYLOFACTS", "SPLICE", "POLII", "FAM",
+#'     "PBM", "PBM_HOMEO", "PBM_HLH", "UNVALIDATED"
+#'   ),
 #'   output_predicted_TFBS = FALSE,
 #'   ncores = ncores
 #' )
-#' base::saveRDS(interest_cell_type_iGRN_all_TGTF_pairs, file = "./3 get iGRN/interest_cell_type_iGRN_all_TGTF_pairs.rds")
+#' base::saveRDS(interest_cell_type_iGRN, file = "./3 get iGRN/interest_cell_type_iGRN.rds")
 #' }
 get_iGRN_by_TFBS_pwm_by_JASPAR2024 = function(
     interest_cell_type_genes_pseudotime_info  = interest_cell_type_genes_pseudotime_info,
@@ -100,7 +107,7 @@ get_iGRN_by_TFBS_pwm_by_JASPAR2024 = function(
 {
   ### Start.
   t_start = base::Sys.time()
-  message("Run: Constructing Standard Gene Regulatory Networks (GRNs) from Transcription Factor Binding Site (TFBS) Position Weight Matrices (PWMs) ", t_start, ".")
+  message("Run: Constructing Initial Gene Regulatory Networks (GRNs) from Transcription Factor Binding Site (TFBS) Position Weight Matrices (PWMs) ", t_start, ".")
   # message("Retrieve known TFs from JASPAR2024 and assume all TFs have potential regulatory relationships with each TG.")
   message("Only considering TFs and TGs that appear in pseudotime analysis.")
   message("Generating a TG-TF association matrix with known TFs filtered by TF-TFBS match strength (rows: TGs, columns: TFs, regulatory strength based on TF-TFBS match scores).")
@@ -314,7 +321,7 @@ get_iGRN_by_TFBS_pwm_by_JASPAR2024 = function(
   base::setwd(original_dir)
   message("The current working directory has been switched to: ", base::getwd(), ".")
   t_end = base::Sys.time()
-  message("Finish: Constructing Standard Gene Regulatory Networks (GRNs) from Transcription Factor Binding Site (TFBS) Position Weight Matrices (PWMs) ", t_end, ".")
+  message("Finish: Constructing Initial Gene Regulatory Networks (GRNs) from Transcription Factor Binding Site (TFBS) Position Weight Matrices (PWMs) ", t_end, ".")
   message("Running time: ")
   base::print(t_end - t_start)
   return(interest_cell_type_iGRN_all_TGTF_pairs)

@@ -1,101 +1,249 @@
-# scDEDS: Single-Cell Differential Equation Dynamical System for Gene Regulatory Network Inference
+# scDEDM: Inference of Enhancer-Gene Regulatory Networks from Paired scRNA-seq and scATAC-seq Data
 
-<img src="https://img.shields.io/badge/R%3E%3D-4.4.0-blue?style=flat&logo=R" /> <img src="https://img.shields.io/badge/Platform-Linux%20%7C%20Windows%20(WSL2)-lightgrey" /> <img src="https://img.shields.io/badge/License-MIT-yellow" />
+## Project Overview
+scDEDM is an R package designed to construct enhancer-gene regulatory networks (eGRNs) by integrating paired single-cell RNA sequencing (scRNA-seq) and single-cell assay for transposase-accessible chromatin sequencing (scATAC-seq) data. To infer high-confidence regulatory relationships between transcription factors (TFs), chromatin accessibility peaks, and target genes (TGs), it leverages pseudotemporal ordering, transcription factor binding site (TFBS) prediction, a discrete evolutionary dynamical model (based on Transcription Factor Expression (TFE), Target Gene Activity (TGA), and Target Gene Expression (TGE))，and a hybrid optimization approach (combining genetic algorithms and gradient ascent). 
 
-## Overview
-scDEDS is an R package designed for predicting Gene Regulatory Networks (GRNs) by modeling discrete pseudotemporal evolutionary dynamics from scRNA-seq and scATAC-seq data (the cells in the two datasets are identical; or, after using other methods to establish a one-to-one correspondence, the name of these matched cells is unified). By modeling gene expression dynamics as a **Differential Equation Dynamical System (DEDS)**, scDEDS can predict cell-specific regulatory interactions between Transcription Factors (TFs) and their Target Genes (TGs) across different cell states and pseudotemporal trajectories: TF-peak, peak-TG, TF-TG. It is linked to paper *scDEDS: A Discrete Evolutionary Dynamical System for GRN Inference from Paired Single-Cell Multi-omics Data*.
+Key features of scDEDM include:
+- Integration of multi-omics data to link chromatin accessibility with gene expression
+- Pseudotime-based cell grouping to handle sparse single-cell data
+- Initial network construction using TFBS position weight matrices (PWMs) from JASPAR2024
+- Robust model training with early stopping to avoid overfitting
+- Generation of both "loose" (comprehensive) and "strict" (core) eGRNs
+- Inference of TF-peak, peak-TG, and TF-peak-TG regulatory relationships
 
-## Key Features
+## Installation
 
-### 🧬 Multi-Omics Integration Framework
-scDEDS pioneers a sophisticated integration approach that simultaneously leverages paired single-cell RNA-seq and ATAC-seq data. Unlike traditional methods that analyze these modalities separately, our package establishes direct connections between chromatin accessibility and gene expression dynamics, enabling more accurate inference of regulatory relationships.
+### Prerequisites
+- **R v4.4**: scDEDM is developed and tested under R version 4.4. Ensure you have this version installed.
+- **Operating System**: Compatible with Linux, Windows, and WSL2 (Windows Subsystem for Linux). Linux is recommended for parallel computing efficiency. In contrast, the use of Windows is not recommended as it does not support parallel computation.
 
-### ⏱️ Pseudotemporal Dynamics Modeling
-The core innovation of scDEDS lies in its differential equation-based modeling of gene regulatory dynamics along pseudotime trajectories. By treating cellular differentiation as a continuous dynamical system, we capture the temporal evolution of regulatory interactions, revealing how transcription factor activities and target gene responses change throughout developmental processes.
+### Installing Dependencies
+First, install the required R packages. Note that igraph version 2.0.3 must be installed from the archive source.  
 
-### 🌿 Branch-Aware Regulatory Analysis
-scDEDS uniquely handles complex branching patterns in cell differentiation trajectories. Our algorithm automatically identifies branch points and constructs branch-specific gene regulatory networks, allowing researchers to investigate how regulatory programs diverge during lineage specification and cellular fate decisions.
+```r
+# Install igraph v2.0.3 (required version)
+install.packages("https://cran.r-project.org/src/contrib/Archive/igraph/igraph_2.0.3.tar.gz", repos = NULL, type = "source")
 
-### 🎯 TF Binding Site Integration
-The package incorporates comprehensive transcription factor binding site information from the JASPAR database, combining computational predictions with empirical data to establish more reliable connections between transcription factors and their potential target genes.
+# Install other CRAN packages
+install.packages(c("dplyr", "ggplot2", "Seurat", "Signac", "VGAM", "ggrepel", "minpack.lm",
+                   "data.table", "tibble", "tidyr", "pROC", "DDRTree", "GA", "psych",
+                   "qs", "parallel", "devtools"))
 
-### 📊 Multi-Layer Regulatory Inference
-scDEDS provides a hierarchical regulatory network inference capability, predicting relationships at three interconnected levels:
-- **TF → Chromatin Accessibility**: Epigenetic regulation
-- **Chromatin Accessibility → Target Gene**: Accessibility-expression relationships
-- **TF → Target Gene**: Direct regulatory interactions (Summarize the above results)
+# Install Bioconductor packages
+if (!require("BiocManager", quietly = TRUE)) install.packages("BiocManager")
+BiocManager::install(c("GenomeInfoDb", "TFBSTools", "JASPAR2024", "IRanges", "ChIPseeker",
+                       "Biobase", "BiocGenerics", "monocle", "Biostrings", "DOSE"))
 
-## Full Workflow
+# Install genome annotation packages (choose one set based on your reference genome)
+# For hg38/GRCh38:
+BiocManager::install(c("TxDb.Hsapiens.UCSC.hg38.knownGene",
+                       "EnsDb.Hsapiens.v86",
+                       "BSgenome.Hsapiens.UCSC.hg38"))
+# For hg19/GRCh37 (optional):
+# BiocManager::install(c("TxDb.Hsapiens.UCSC.hg19.knownGene",
+#                        "EnsDb.Hsapiens.v75",
+#                        "BSgenome.Hsapiens.UCSC.hg19"))
+```
 
-### Phase 1: Data Preprocessing and Feature Engineering
+### Installing scDEDM
+Install scDEDM from GitHub using `devtools`:
+  
+```r
+# Install scDEDM from GitHub
+devtools::install_github("hth-buaa/scDEDM2")
 
-**Target Gene Identification**
-The workflow begins by identifying potential target genes through chromatin accessibility profiling. Promoter and enhancer regions are annotated using genome reference databases, linking accessible chromatin regions to their putative target genes based on genomic proximity and regulatory domain predictions.
+# Load the package
+library(scDEDM)
+```
 
-**Transcription Factor Characterization**
-Transcription factors are systematically cataloged using the JASPAR database, filtering for factors expressed in the cell type of interest. 
+## Quick Start
 
-**Multi-Omics Data Integration**
-Expression matrices for target genes and activity matrices for transcription factors are constructed, creating a unified data structure that synchronizes information from both transcriptomic and epigenomic modalities.
+### Data Requirements
+To use scDEDM, you need:
+1. **Paired scRNA-seq and scATAC-seq data**: Both datasets must have identical cell names.
+2. **Cell type annotations**: A metadata column named `seurat_annotations` in both Seurat objects, containing matching cell type labels for each cell.
+3. **scATAC-seq fragment file**: A `_fragments.tsv.gz` file and its corresponding `.tbi` index file (required for Signac-based analysis).
 
-### Phase 2: Pseudotemporal Reconstruction and Cellular Organization
+### Full Tutorial Link
+For a complete step-by-step tutorial with code examples, please refer to the scDEDM2_guide_line.R or scDEDM2_guide_line.txt. This README focuses on the workflow logic and key parameters; the tutorial provides executable code for all steps.
 
-**Trajectory Inference**
-Using dimensionality reduction and trajectory inference algorithms (monocle), cells are ordered along pseudotemporal axes that represent developmental or differentiation processes. This ordering captures the continuous nature of cellular transitions rather than treating cell states as discrete entities.
+## Detailed Workflow
 
-**Branch Point Identification**
-The algorithm automatically detects branching points in the pseudotemporal trajectory (monocle), identifying where cell populations diverge into distinct lineages. Each branch represents an alternative developmental path with potentially unique regulatory programs.
+### Part 0: Data Loading and Preprocessing
+This initial step prepares your input data for downstream analysis by ensuring data quality, consistency, and compatibility with scDEDM.
 
-**Dynamic Cell Grouping**
-Cells are intelligently grouped along pseudotime, balancing temporal resolution with statistical power. The grouping strategy adapts to cellular density variations, ensuring sufficient cells in each temporal bin for robust statistical analysis while maintaining temporal precision.
+#### Loading Seurat Objects
+- **Example Dataset**: scDEDM provides a workflow using the `pbmcMultiome` dataset (10x Genomics PBMC multi-ome data) in R package SeuratData. 
+- **Custom Data**: For your own data, load paired scRNA-seq and scATAC-seq Seurat objects. If data comes from separate experiments, first establish one-to-one cell correspondence and unify cell identifiers.
 
-### Phase 3: Initial Regulatory Network Construction
+#### Upgrading to Seurat v5
+scDEDM is built on Seurat v5. Convert your scRNA-seq assay from Seurat v4 `Assay` to Seurat v5 `Assay5` if needed.
 
-**TF-TG Relationship Scoring**
-Based on transcription factor binding site predictions and co-expression patterns, initial regulatory relationships are scored. This creates a preliminary network that serves as the foundation for subsequent dynamical modeling.
+#### Filtering Abnormal Chromosomes
+Remove peaks from non-standard chromosomes (e.g., contigs) to focus on biologically relevant regions.
 
-**Branch-Specific Network Initialization**
-Distinct initial networks are constructed for each identified branch, acknowledging that regulatory relationships may be branch-specific or exhibit differential strengths across lineages.
+#### Adding Cell Labels
+Ensure both Seurat objects have a `seurat_annotations` column in their metadata with matching cell type labels. If missing, manually add or adjust this column.
 
-### Phase 4: Dynamical System Modeling and Parameter Optimization
+#### Sampling Cells
+- **Filter Cell Types**: Subset data to focus on cell types of interest (e.g., monocytes in the example).
+- **Unify Labels**: For related cell types (e.g., CD14 Mono and CD16 Mono), you need to unify their labels (e.g., "Mono") to analyze their combined differentiation trajectory.
 
-**Differential Equation Framework**
-The core innovation of scDEDS involves formulating gene regulation as a system of differential equations that describe the evolution in transcription factor expressions, target gene activities, and target gene expressions over pseudotime.
+#### Downsampling Genes and Peaks (Optional)
+To speed up testing, you can downsample data while preserving biological signal:
+- **Cells**: Retain top cells by combined non-zero frequency of RNA expression and chromatin accessibility.
+- **Genes**: Filter out non-coding RNAs (e.g., AC/AL/LINC prefixes) and mitochondrial genes, then select top variable genes.
+- **Peaks**: Select top variable peaks based on accessibility variability.
 
-**Parameter Estimation via Hybrid Optimization**
-A sophisticated optimization pipeline combining genetic algorithms and gradient descent methods estimates parameters that best explain the observed expression dynamics. This hybrid approach ensures robust convergence while avoiding suboptimal local minima.
+#### Preparing Fragment Files
+scATAC-seq analysis requires a `_fragments.tsv.gz` file and `.tbi` index:
+- **Download**: If provided, download the fragment file from the source (e.g., 10x Genomics).
+- **Generate**: If missing, generate the fragment file from the scATAC-seq count matrix and compress it with `bgzip`, then create an index with `tabix` (Linux tools).
 
-**Model Selection and Validation**
-Multiple candidate models are evaluated based on their ability to recapitulate observed expression patterns, with the best-performing models selected for final network prediction.
+### Part 1: Data Preprocessing
+This step extracts key regulatory elements (TGs and TFs) and generates matrices for GRN construction.
 
-### Phase 5: Comprehensive Regulatory Network Prediction
+#### Annotating Peaks and Identifying Target Genes (TGs)
+Use `ChIPseeker` to annotate chromatin accessibility peaks and identify TGs with open promoters:
+- **Promoter Range**: Define a promoter search range (e.g., ±3000 bp around TSS; smaller ranges reduce runtime but may miss distal elements).
+- **Output**: Annotation plots, peak annotation tables, and a list of TGs.
 
-**Final GRN Assembly**
-The optimized dynamical models are used to predict regulatory strengths for all potential TF-TG pairs, generating a comprehensive, quantitative gene regulatory network.
+#### Identifying Transcription Factors (TFs)
+Extract TFs present in your scRNA-seq data from the JASPAR2024 database:
+- **Species**: Set to your organism (e.g., "Homo sapiens").
+- **Collections**: Include JASPAR collections (e.g., "CORE", "PHYLOFACTS") to expand TF coverage.
 
-**Multi-Layer Network Construction**
-Beyond TF-TG interactions, the package infers relationships between TFs and chromatin accessibility, as well as between accessibility and gene expression, providing a multi-layer regulatory map.
+#### Generating Expression and Activity Matrices
+Process multi-omics data to extract:
+- **TF/TG Expression Matrices**: From scRNA-seq data.
+- **Gene Activity Matrices**: From scATAC-seq data (using Signac).
+- **Input**: Provide the path to your fragment file (with `.tbi` index).
 
-**Quality Control and Filtering**
-Stringent quality thresholds are applied to ensure high-confidence predictions, filtering out weak or unreliable interactions while retaining biologically meaningful regulatory relationships.
+### Part 2: Pseudotime Inference and Cell Grouping
+This step models cell differentiation trajectories and groups cells to handle data sparsity.
 
-This comprehensive workflow transforms raw single-cell multi-omics data into dynamic, quantitative models of gene regulation, providing unprecedented insights into the mechanistic underpinnings of cellular differentiation and function.
+#### Pseudotime Analysis and Branch Partitioning
+- **Quality Control**: Filter genes and cells for the selected cell type(s) to ensure data quality.
+- **Trajectory Inference**: Use Monocle2 (with DDRTree) to infer pseudotemporal ordering of cells.
+- **Branch Partitioning**: Interactively define branches based on trajectory visualization (e.g., 2 branches for monocyte differentiation).
 
-## Hardware Recommendations
+#### Cell Grouping Along Pseudotime
+- **Extract Temporal Profiles**: For each gene, extract expression (TFs/TGs) and activity (TGs) values along pseudotime.
+- **Filter Genes/Cells**: Use `alpha_gene` (max missing rate for genes, e.g., 0.7) and `alpha_cell` (max missing rate for cells, e.g., 0.9) to remove low-quality data.
+- **Adaptive Cell Grouping**: Group cells along pseudotime using a logarithmic fitting model (where xrepresents the number of cells in a branch, and yrepresents the minimum non-zero count of gene expression and activity values across all genes within each cell group for that branch) to ensure each group has sufficient non-zero values. Define fitting points (e.g., (200,5), (500,10), (1000,15)) to balance group size and number.
 
-The model training process is **extremely computationally intensive**.
-*   **OS:** Linux is highly recommended. Windows users can use WSL2.
-*   **CPU:** A high-core-count CPU (e.g., >= 40 cores) is strongly advised.
-*   **RAM:** A big RAM is highly recommended (e.g. for data with 1,000 cells and 20,000 genes, >= 64 GB is recommended, and more is of course better).
-*   **Time:** Training for one cell type may take **several hours to days**.
+### Part 3: Constructing Initial Gene Regulatory Networks (iGRNs)
+This step builds a preliminary GRN using TFBS predictions.
 
-## R Package
+#### TFBS PWM-Based Initial GRN Construction
+- **PWM Matching**: Use JASPAR2024 PWMs to predict TF binding sites in promoter regions of TGs.
+- **Min Score**: Set `min_score_for_matchPWM` (e.g., "0%") to retain all potential binding sites (stringent filtering occurs later).
+- **Output**: A TF-TG association matrix with initial regulatory strength scores (theta_i).
 
-*   R package is in https://github.com/hth-buaa/scDEDS2.
+#### Setting Regulatory Threshold (Tao)
+Calculate a cell-type-specific threshold `tao` to binarize the iGRN:
+- **Definition**: Regulatory relationships with theta_i > tao are considered significant.
+- **Calculation**: Tao is set to the minimum non-zero theta_i minus a small constant (lower bound: 0.005).
 
-## Specific Guidelines (Code, Data, and Results Availability)
+#### Branch-Specific iGRNs
+Extract subnetworks for each branch by filtering the global iGRN to include only TFs and TGs present in that branch.
 
-*   Specific Guidelines (Code, Data, and Results Availability) is in https://github.com/hth-buaa/scDEDS-code-data-and-result/tree/main.
-*   See specific Guidelines in *article_experiment_R_code.txt* (it is also the code for experiment in the paper).
-*   See the experiment results of the paper in folder *article experiment result* (including the data used in paper). 
-*   See the code for figures and some mediate analysis results in folder *article figure and some analysis result file R code*.
+### Part 4: Training DEDM-Based Predictive Models
+This step trains regression models to predict regulatory strengths using a hybrid optimization approach.
+
+#### Training Set Partitioning
+Select high-confidence training samples from the iGRN:
+- **Top Theta Selection**: For each TF and TG, retain top interactions by theta_i.
+- **Filter Thresholds**: Apply quantile and absolute thresholds to refine the training set.
+- **Refinement (Optional)**: Require mutual top membership (TF in TG's top regulons and vice versa) to further refine training data.
+
+#### Model Training with Hybrid Optimization
+Train models for each branch using a combination of genetic algorithms (to escape local optima) and gradient ascent (to speed convergence):
+- **Key Parameters**:
+  - `max_epochs`: Maximum training rounds (e.g., 1000; training stops early if convergence is reached).
+  - `early_stop`: Stop if no improvement in N epochs (e.g., 5; balances performance and overfitting).
+  - `popSize_ga`/`maxiter_ga`: Genetic algorithm population size (e.g., 50) and generations (e.g., 150).
+  - `iterations_grad`: Gradient ascent steps per iteration (e.g., 30).
+  - `theta_difference_threshold`/`fit_loss_threshold`: Quality thresholds for accepting models (e.g., 0.1 each).
+- **Parallel Computing**: Use multiple cores (set `ncores` to available cores minus 1; Linux recommended).
+
+### Part 5: Predicting and Refining GRNs
+This step uses trained models to infer high-confidence GRNs (TF-TG) and link them to chromatin peaks.
+
+#### Preparing Data for GRN Inference
+Generate all possible TF-TG pairs and attach their branch-specific cell group state features (TF expression, TG activity, TG expression).
+
+#### Inferring Branch-Specific GRNs
+- **Predict Regulatory Strengths**: Apply trained models to predict regulatory strength (theta_p) and fitting loss for all TF-TG pairs.
+- **Parallel Processing**: Partition data to distribute load across cores (set `n_part` and `each` to balance workload).
+
+#### Selecting Best Predictions
+Filter predictions to retain high-quality interactions:
+- **Initial Thresholds**: Use quantile (e.g., 0.8 for theta_p, 0.2 for loss) and absolute bounds (e.g., 0.2 for theta_p, 0.2 for loss).
+- **Branch Integration**: Aggregate results across branches using weighted averaging (by cell count) to get a unified GRN (TF-TG).
+
+#### Filtering GRNs (Loose and Strict)
+Apply a second round of filtering to generate two GRN versions:
+- **Loose GRN**: Retains regulatory relationships present in any branch (comprehensive).
+- **Strict GRN**: Retains only relationships present in all branches (core).
+- **Recommendation**: Use the loose GRN for most analyses (retains more biological signal).
+
+#### Inferring Peak-TG and TF-Peak Relationships
+Link the GRN to chromatin accessibility peaks:
+- **Peak-TG Inference**:
+  - Identify peaks in promoter regions of TGs in the filtered GRN.
+  - Calculate importance scores for peak-TG pairs using features like accessibility, expression, and non-zero ratios.
+  - Filter pairs using a weighted composite score (customize weights based on your research focus).
+- **TF-Peak Inference**:
+  - Link TFs in the GRN to peaks associated with their target genes.
+  - Calculate importance scores for TF-peak pairs (include theta_p, theta_i, and fit_loss as features).
+  - Filter pairs, ensuring at least one peak per TF is retained.
+
+#### Constructing TF-Peak-TG eGRNs
+Integrate TF-peak and peak-TG predictions to build the final eGRN (TF-peak-TG) :
+- **Regulation Types**: Classify relationships as "TF-peak-TG" (both components supported), "TF-peak" (only TF-peak supported), or "peak-TG" (only peak-TG supported).
+- **Output**: A full eGRN with all features and a simplified version with key columns (TF, peak, TG, regulation type).
+
+## Output Description
+scDEDM generates the following key outputs:
+1. **Processed Data**: Filtered Seurat objects, expression/activity matrices, and pseudotime information.
+2. **Initial GRNs (iGRNs)**: Global and branch-specific TF-TG networks with initial regulatory scores.
+3. **Trained Models**: Branch-specific regression models for regulatory strength prediction.
+4. **Filtered Predictive GRNs (pGRN)**: Loose and strict versions of the TF-TG GRN with predicted regulatory strengths.
+5. **Peak-TG/TF-Peak Predictions**: Filtered relationships with importance scores.
+6. **Final Predictive eGRN (peGRN)**: Integrated TF-peak-TG network with regulation type annotations.
+
+All intermediate results can be saved using `saveRDS` (or `qs::qsave` for large files) to enable step-by-step reanalysis.
+
+## Memory Management Tips
+- **Parallel Computing**: scDEDM uses parallel processing. If memory is exhausted, reduce the number of cores (`ncores`).
+- **Restart R**: After parallel steps, memory may not be fully released. Restart R and reload intermediate results to free memory.
+- **Independent Functions**: All scDEDM functions can run independently. Save intermediate results after each step to avoid re-running the entire workflow.
+
+## Common Issues and Solutions
+1. **Data Download Failure**:
+   - For `pbmcMultiome`, retry downloading when network speed is good.
+   - If persistent, manually download the data tarball and install it locally.
+
+2. **Memory Errors**:
+   - Reduce `ncores` or downsample data (cells/genes/peaks) for testing.
+   - Use `qs::qsave`/`qs::qread` instead of `saveRDS`/`readRDS` for faster I/O and smaller file sizes.
+
+3. **Unsatisfactory Cell Grouping**:
+   - Adjust `points_x_for_fitting_nc_and_nmin` and `points_y_for_fitting_nc_and_nmin` to change the relationship between total cells and minimum group size.
+   - Check the number of groups and minimum non-zero counts per group to ensure statistical power.
+
+4. **Model Training Convergence Issues**:
+   - Increase `max_epochs` or `early_stop` to allow longer training.
+   - Adjust `theta_difference_threshold` or `fit_loss_threshold` to relax quality requirements.
+   - Increase `popSize_ga` or `maxiter_ga` to improve the genetic algorithm's ability to escape local optima.
+                                                            
+## Citation
+If you use scDEDM in your research, please cite:
+[...]
+                                                            
+## Related Links
+1. R package is in https://github.com/hth-buaa/scDEDM2.
+2. Specific Guidelines is in https://github.com/hth-buaa/scDEDM2/blob/main/scDEDM2_guide_line.R or https://github.com/hth-buaa/scDEDM2/blob/main/scDEDM2_guide_line.txt.
+3. Experiment results of the paper is in ... . 
+4. The code for figures and some mediate analysis results are in ... .

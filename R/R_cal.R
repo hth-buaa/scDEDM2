@@ -1,7 +1,7 @@
 #' @title The function R in the evolutionary equations of the paper
 #'
 #' @param theta_TF_TG Numeric (vector). Regulatory strength of transcription factor TF on target gene TG
-#' @param tao
+#' @param tau
 #' Numeric from 0 to 1. Regulatory threshold τ.
 #' If regulatory strength θ > τ, a regulatory relationship is confirmed (positive sample); o
 #' therwise, it is considered a negative sample.
@@ -19,7 +19,7 @@
 #' \dontrun{
 #' R = R_cal(
 #'   theta_TF_TG = c(0.18, 0.23),
-#'   tao = 0.323,
+#'   tau = 0.323,
 #'   r1 = 200,
 #'   r2 = 1,
 #'   r3 = 1,
@@ -27,12 +27,12 @@
 #'   r5 = 1
 #' )
 #' }
-R_cal = function(theta_TF_TG, tao, r1 = 200, r2, r3 = 1, r4 = 1000, r5 = 1)
+R_cal = function(theta_TF_TG, tau, r1 = 200, r2, r3 = 1, r4 = 1000, r5 = 1)
 {
-  R_unnormalize = theta_TF_TG / (r1 * tao) + r5 / (
+  R_unnormalize = theta_TF_TG / (r1 * tau) + r5 / (
     (1 + 10^(r2 * (r3 - theta_TF_TG))) * (1 + 10^(r4 * r2 * (r3 - theta_TF_TG)))
   )
-  r6 = 1 / (r1 * tao) + r5 / (
+  r6 = 1 / (r1 * tau) + r5 / (
     (1 + 10^(r2 * (r3 - 1))) * (1 + 10^(r4 * r2 * (r3 - 1)))
   )
   R = R_unnormalize / r6

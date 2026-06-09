@@ -15,13 +15,13 @@ set_init_params(
 A nested list structure containing initialized parameters for each cell type and branch.
 }
 \description{
-This function initializes the parameter structures for the gene regulatory network prediction model scDEDS.
+This function initializes the parameter structures for the gene regulatory network prediction model scDEDM.
 }
 \details{
 The function performs the following operations:
 \enumerate{
 \item Creates a hierarchical parameter structure for each cell type, branch, and regulatory interaction (TF-TG pair).
-\item Initializes parameters for the scDEDS model, including:
+\item Initializes parameters for the scDEDM model, including:
 \itemize{
 \item \code{r}: Regulatory interaction parameters (r2_TG, r2_TF) with initial values, upper, and lower bounds.
 \item \code{alpha}: Cell group state association parameters (alpha1, alpha2 for TG and TF) for each time point K.
@@ -38,10 +38,15 @@ The function performs the following operations:
 }
 \examples{
 \dontrun{
-interest_cell_type_branch_training_set = base::readRDS("./4.1 Build Prediction Model - Select Training Set/interest_cell_type_branch_training_set.rds")
+interest_cell_type_branch_training_set = base::readRDS(
+  "./4.1 Build Prediction Model - Select Training Set/interest_cell_type_branch_training_set.rds"
+)
 interest_cell_type_branch_init_params = set_init_params(
   interest_cell_type_branch_training_set = interest_cell_type_branch_training_set
 )
-base::saveRDS(interest_cell_type_branch_init_params, file = "./4.2 BUild Prediction Model/interest_cell_type_branch_init_params.rds")
+base::saveRDS(
+  interest_cell_type_branch_init_params,
+  file = "./4.2 BUild Prediction Model/interest_cell_type_branch_init_params.rds"
+)
 }
 }

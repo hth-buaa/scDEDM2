@@ -11,7 +11,7 @@ f_train_cal_gr(
   ncores = 1,
   params_names = params_names,
   train_data = train_data,
-  tao = tao,
+  tau = tau,
   Tslot_K = Tslot_K,
   params_upper = params_upper,
   params_lower = params_lower
@@ -33,7 +33,7 @@ Larger core counts, fewer cell groups, and fewer genes correspond to shorter run
 
 \item{train_data}{See in ?f_train_cal.}
 
-\item{tao}{See in ?f_train_cal.}
+\item{tau}{See in ?f_train_cal.}
 
 \item{Tslot_K}{See in ?f_train_cal.}
 
@@ -62,7 +62,7 @@ The function implements the following computational strategy:
 \note{
 Important considerations:
 \itemize{
-\item Depends on \code{scDEDS::f_train_cal} for objective function calculation
+\item Depends on \code{scDEDM::f_train_cal} for objective function calculation
 \item Uses forward difference approximation
 \item Parallel processing significantly speeds up computation for high-dimensional parameter spaces
 \item Adaptive step sizing helps balance numerical precision and computational stability
@@ -74,7 +74,7 @@ Important considerations:
 h_max = 0.01
 h_min_percent = 0.01
 ncores = ceiling(detectCores() / 2) # In Linux.
-# The settings for the other parameters are inside the function scDEDS::gradient_ascent_train.
+# The settings for the other parameters are inside the function scDEDM::gradient_ascent_train.
 temp_grad = f_train_cal_gr(
   params,
   h_max = h_max,
@@ -82,7 +82,7 @@ temp_grad = f_train_cal_gr(
   ncores = ncores,
   params_names = params_names,
   train_data = train_data,
-  tao = tao,
+  tau = tau,
   Tslot_K = Tslot_K,
   params_upper = params_upper,
   params_lower = params_lower

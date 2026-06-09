@@ -61,7 +61,9 @@
 #' scRNAseq = readRDS("./scRNAseq.rds")
 #' scATACseq = readRDS("./scATACseq.rds")
 #' interest_cell_type_pGRN = base::readRDS("./5 Infer GRN/interest_cell_type_pGRN.rds")
-#' results_identify_TGs = base::readRDS("./1.1 Data Preprocessing - Identify TGs By Annotation/results_identify_TGs.rds")
+#' results_identify_TGs = base::readRDS(
+#'   "./1.1 Data Preprocessing - Identify TGs By Annotation/results_identify_TGs.rds"
+#' )
 #' weight_Accessibility_percentile = 1
 #' weight_Expression_percentile = 1
 #' weight_Accessibility_non_zero_ratio_percentile = 5
@@ -76,7 +78,10 @@
 #'   weight_Accessibility_non_zero_ratio_percentile = weight_Accessibility_non_zero_ratio_percentile,
 #'   weight_Expression_non_zero_ratio_percentile = weight_Expression_non_zero_ratio_percentile
 #' )
-#' base::saveRDS(interest_cell_type_peak_TG_pred, file = "./5 Infer GRN/interest_cell_type_peak_TG_pred.rds")
+#' base::saveRDS(
+#'   interest_cell_type_peak_TG_pred,
+#'   file = "./5 Infer GRN/interest_cell_type_peak_TG_pred.rds"
+#' )
 #' }
 infer_peak_to_TG = function(
     scRNAseq,

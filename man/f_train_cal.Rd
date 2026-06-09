@@ -8,7 +8,7 @@ f_train_cal(
   params,
   params_names = params_names,
   train_data = train_data,
-  tao = tao,
+  tau = tau,
   Tslot_K = Tslot_K
 )
 }
@@ -19,7 +19,7 @@ f_train_cal(
 
 \item{train_data}{Data frame. Training dataset containing only one regulatory pair (TF-TG) with columns for theta_i(regulatory strength) and time-series values for TFE, TGA, and TGE features.}
 
-\item{tao}{See in ?R_cal.}
+\item{tau}{See in ?R_cal.}
 
 \item{Tslot_K}{Numeric vector. Psudotime intervals between consecutive measurements, used in the TGE dynamics calculation.}
 }
@@ -56,12 +56,15 @@ Important considerations:
 }
 \examples{
 \dontrun{
-# The settings for parameters are inside the function scDEDS::f_train_cal_gr, scDEDS::gradient_ascent_train, or scDEDS::gradient_ascent_train model_train.
+# The settings for parameters are inside these three functions:
+# scDEDM::f_train_cal_gr,
+# scDEDM::gradient_ascent_train,
+# or scDEDM::gradient_ascent_train model_train.
 f0 = f_train_cal(
   params,
   params_names = params_names,
   train_data = train_data,
-  tao = tao,
+  tau = tau,
   Tslot_K = Tslot_K
 )
 }

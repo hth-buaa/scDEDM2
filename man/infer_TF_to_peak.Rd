@@ -71,6 +71,9 @@ interest_cell_type_TF_peak_pred = infer_TF_to_peak(
   interest_cell_type_iGRN = interest_cell_type_iGRN,
   ncores = ncores
 )
-base::saveRDS(interest_cell_type_TF_peak_pred, file = "./5 Infer GRN/interest_cell_type_TF_peak_pred.rds")
+base::saveRDS(
+  interest_cell_type_TF_peak_pred,
+  file = "./5 Infer GRN/interest_cell_type_TF_peak_pred.rds"
+)
 }
 }

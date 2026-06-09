@@ -7,7 +7,7 @@
 select_best_prediction(
   interest_cell_type_pGRN = interest_cell_type_pGRN,
   interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
-  interest_cell_type_tao = interest_cell_type_tao,
+  interest_cell_type_tau = interest_cell_type_tau,
   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
   fit_loss_quantile_threshold = 0.2,
   theta_p_quantile_threshold = 0.8,
@@ -22,7 +22,7 @@ select_best_prediction(
 
 \item{interest_cell_type_branch_model_train}{The output of model_train.}
 
-\item{interest_cell_type_tao}{The output of function get_cell_type_tao.}
+\item{interest_cell_type_tau}{The output of function get_cell_type_tau.}
 
 \item{interest_cell_type_genes_pseudotime_info}{The output of function get_genes_pseudotime_info.}
 
@@ -77,9 +77,13 @@ Important considerations:
 \examples{
 \dontrun{
 interest_cell_type_pGRN = base::readRDS("./5 Infer GRN/interest_cell_type_pGRN.rds")
-interest_cell_type_branch_model_train = base::readRDS("./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds")
-interest_cell_type_tao = base::readRDS("./3 get iGRN/interest_cell_type_tao.rds")
-interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+interest_cell_type_branch_model_train = base::readRDS(
+  "./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds"
+)
+interest_cell_type_tau = base::readRDS("./3 get iGRN/interest_cell_type_tau.rds")
+interest_cell_type_genes_pseudotime_info = base::readRDS(
+  "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+)
 fit_loss_quantile_threshold1 = 0.2
 theta_p_quantile_threshold1 = 0.8
 fit_loss_upper1 = 0.2
@@ -90,7 +94,7 @@ ncores = parallel::detectCores() - 1 # in Linux
 interest_cell_type_pGRN = select_best_prediction(
   interest_cell_type_pGRN = interest_cell_type_pGRN,
   interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
-  interest_cell_type_tao = interest_cell_type_tao,
+  interest_cell_type_tau = interest_cell_type_tau,
   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
   fit_loss_quantile_threshold = fit_loss_quantile_threshold1,
   theta_p_quantile_threshold = theta_p_quantile_threshold,

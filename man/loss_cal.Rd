@@ -8,7 +8,7 @@ loss_cal(
   data = train_data,
   params = result_gradient$parameters,
   params_names = params_names,
-  tao = tao,
+  tau = tau,
   Tslot_K = Tslot_K
 )
 }
@@ -21,7 +21,7 @@ Typically choose one from three options: training set data, validation set data,
 
 \item{params_names}{See in ?f_train_cal.}
 
-\item{tao}{See in ?f_train_cal.}
+\item{tau}{See in ?f_train_cal.}
 
 \item{Tslot_K}{See in ?f_train_cal.}
 }
@@ -56,12 +56,12 @@ Important considerations:
 }
 \examples{
 \dontrun{
-# The settings for the other parameters are inside the function scDEDS::model_train.
+# The settings for the other parameters are inside the function scDEDM::model_train.
 print(loss_cal(
   data = train_data,
   params = result_gradient$parameters,
   params_names = params_names,
-  tao = tao,
+  tau = tau,
   Tslot_K = Tslot_K
 ))
 }

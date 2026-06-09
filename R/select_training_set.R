@@ -55,7 +55,9 @@
 #' @examples
 #' \dontrun{
 #' interest_cell_type_branch_iGRN = base::readRDS("./3 get iGRN/interest_cell_type_branch_iGRN.rds")
-#' interest_cell_type_group = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
+#' interest_cell_type_group = base::readRDS(
+#'   "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+#' )
 #' top_n_for_max_theta_in_each_regulon = 1
 #' max_theta_retention_rate_in_tops = 0.8
 #' max_theta_retention_rate_in_all = 0.8
@@ -210,7 +212,7 @@ select_training_set = function (interest_cell_type_branch_iGRN = interest_cell_t
             (train_set$TG %in% base::unique(TFregulon_top_n$TG)),
         ]
         message("Retain the top ", top_ratio_in_refine * 100, "%.")
-        train_set = train_set[train_set$theta_i >= quantile(
+        train_set = train_set[train_set$theta_i >= stats::quantile(
           train_set$theta_i, probs = 1 - top_ratio_in_refine , na.rm = TRUE
         ), ]
 

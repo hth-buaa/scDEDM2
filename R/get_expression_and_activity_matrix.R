@@ -12,6 +12,9 @@
 #' Default is TFs_in_JASPAR2024. TFs_in_JASPAR2024 is the output of function get_TGs_from_JASPAR2024.
 #' @param scRNAseq See in ?identify_TGs.
 #' @param scATACseq See in ?identify_TGs.
+#' @param Ensdb
+#' An EnsDb object. This function calls Signac::GetGRangesFromEnsDb, and this parameter corresponds to the ensdb argument of that function (see ?Signac::GetGRangesFromEnsDb).
+#' It should be set according to the species and genome version of the single‑cell data. Default is EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86.
 #' @param promoter_range
 #' Numeric. The genomic range (in base pairs) to extend around transcription start sites for calculating gene activity scores.
 #' Must be set prior to code execution and remain unchanged during runtime.
@@ -43,7 +46,7 @@
 #' Important requirements:
 #' \itemize{
 #' \item Requires both fragment file and its index (.tbi) in the specified path
-#' \item Uses EnsDb.Hsapiens.v86 for genomic annotations (modify for other species)
+#' \item Uses EnsDb for genomic annotations (modify for other species)
 #' \item Temporarily changes working directory but restores upon completion
 #' \item activity is calculated based on ATAC-seq fragment counts in gene bodies and promoter regions
 #' \item This function must run in Linux, as \code{GenomeInfoDb::seqlevelsStyle(annotations) = 'UCSC'} is guaranteed to work in Linux but has very low success rate on Windows.
@@ -55,8 +58,12 @@
 #' \dontrun{
 #' # Run in linux.
 #' library(EnsDb.Hsapiens.v86)
-#' results_identify_TGs = base::readRDS("./1.1 Data Preprocessing - Identify TGs By Annotation/results_identify_TGs.rds")
-#' TFs_in_JASPAR2024 = base::readRDS("./1.2 Data Preprocessing - Get TGs From JASPAR2024/TFs_in_JASPAR2024.rds")
+#' results_identify_TGs = base::readRDS(
+#'   "./1.1 Data Preprocessing - Identify TGs By Annotation/results_identify_TGs.rds"
+#' )
+#' TFs_in_JASPAR2024 = base::readRDS(
+#'   "./1.2 Data Preprocessing - Get TGs From JASPAR2024/TFs_in_JASPAR2024.rds"
+#' )
 #' scRNAseq = base::readRDS("./scRNAseq.rds")
 #' scATACseq = base::readRDS("./scATACseq.rds")
 #' promoter_range = 50
@@ -65,16 +72,21 @@
 #'   TFs = TFs_in_JASPAR2024,
 #'   scRNAseq = scRNAseq,
 #'   scATACseq = scATACseq,
+#'   Ensdb = EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86,
 #'   promoter_range = promoter_range,
 #'   path = "/mnt/d/pbmc-equation/pbmc_granulocyte_sorted_10k_atac_fragments.tsv.gz"
 #' )
-#' base::saveRDS(Basic_Info, file = "./1.3 Data Preprocessing - Get Expression And Activity Matrix/Basic_Info.rds")
+#' base::saveRDS(
+#'   Basic_Info,
+#'   file = "./1.3 Data Preprocessing - Get Expression And Activity Matrix/Basic_Info.rds"
+#' )
 #' }
 get_expression_and_activity_matrix = function(
     TGs = results_identify_TGs$TGs,
     TFs = TFs_in_JASPAR2024,
     scRNAseq = scRNAseq,
     scATACseq = scATACseq,
+    Ensdb = EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86,
     promoter_range = 50,
     path
 )
@@ -97,7 +109,7 @@ get_expression_and_activity_matrix = function(
 
   ### Generating gene activity matrix (based on ATAC-seq fragment counts in gene bodies and promoter regions per cell)
   message("Annotating chromatin fragments in scATAC-seq data with genomic annotation.")
-  annotations = Signac::GetGRangesFromEnsDb(ensdb = EnsDb.Hsapiens.v86::EnsDb.Hsapiens.v86)
+  annotations = Signac::GetGRangesFromEnsDb(ensdb = Ensdb)
   GenomeInfoDb::seqlevelsStyle(annotations) = 'UCSC'
   Signac::Annotation(scATACseq) = annotations
 

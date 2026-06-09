@@ -8,7 +8,7 @@
 #' @param interest_cell_type_branch_training_set The output of function select_training_set.
 #' @param interest_cell_type_branch_init_params The output of function set_init_params.
 #' @param interest_cell_type_group The output of function cell_grouping.
-#' @param interest_cell_type_tao The output of function get_cell_type_tao.
+#' @param interest_cell_type_tau The output of function get_cell_type_tau.
 #' @param interest_cell_type_genes_pseudotime_info The output of function get_genes_pseudotime_info.
 #' @param max_epochs Positive integer. Maximum number of training epochs (iterations). Default is 1000.
 #' @param early_stop Positive integer. Number of consecutive epochs without significant improvement to trigger early stopping. Default is 10.
@@ -34,7 +34,7 @@
 #' \item \code{re}: Regulon name
 #' \item \code{train_data}: Training data used
 #' \item \code{Tslot_K}: Psudotime intervals
-#' \item \code{tao}: Regulatory threshold τ. If regulatory strength θ > τ, a regulatory relationship is confirmed (positive sample); o therwise, it is considered a negative sample.
+#' \item \code{tau}: Regulatory threshold τ. If regulatory strength θ > τ, a regulatory relationship is confirmed (positive sample); o therwise, it is considered a negative sample.
 #' \item \code{f_value_train}: Objective function values
 #' \item \code{params_data_frame}: Parameters of each training set
 #' \item \code{loss_train}: Training loss history
@@ -76,17 +76,25 @@
 #' \item Memory requirements scale with the number of regulons and parameter dimensions
 #' }
 #'
-#' @seealso \code{\link[GA]{ga}}, \code{\link[scDEDS]{f_train_cal}}, \code{\link[scDEDS]{loss_cal}}, \code{\link[scDEDS]{theta_p_cal}}
+#' @seealso \code{\link[GA]{ga}}, \code{\link[scDEDM]{f_train_cal}}, \code{\link[scDEDM]{loss_cal}}, \code{\link[scDEDM]{theta_p_cal}}
 #'
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' interest_cell_type_branch_training_set = base::readRDS("./4.1 Build Prediction Model - Select Training Set/interest_cell_type_branch_training_set.rds")
-#' interest_cell_type_branch_init_params = base::readRDS("./4.2 BUild Prediction Model/interest_cell_type_branch_init_params.rds")
-#' interest_cell_type_group = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
-#' interest_cell_type_tao = base::readRDS("./3 get iGRN/interest_cell_type_tao.rds")
-#' interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+#' interest_cell_type_branch_training_set = base::readRDS(
+#'   "./4.1 Build Prediction Model - Select Training Set/interest_cell_type_branch_training_set.rds"
+#' )
+#' interest_cell_type_branch_init_params = base::readRDS(
+#'   "./4.2 BUild Prediction Model/interest_cell_type_branch_init_params.rds"
+#' )
+#' interest_cell_type_group = base::readRDS(
+#'   "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+#' )
+#' interest_cell_type_tau = base::readRDS("./3 get iGRN/interest_cell_type_tau.rds")
+#' interest_cell_type_genes_pseudotime_info = base::readRDS(
+#'   "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+#' )
 #'
 #' max_epochs = 50
 #' early_stop = 5
@@ -112,20 +120,32 @@
 #'   interest_cell_type_branch_training_set = interest_cell_type_branch_training_set,
 #'   interest_cell_type_branch_init_params = interest_cell_type_branch_init_params,
 #'   interest_cell_type_group = interest_cell_type_group,
-#'   interest_cell_type_tao = interest_cell_type_tao,
+#'   interest_cell_type_tau = interest_cell_type_tau,
 #'   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
-#'   max_epochs = max_epochs, early_stop = early_stop,
-#'   popSize_ga = popSize_ga, maxiter_ga = maxiter_ga, pcrossover_ga = pcrossover_ga, pmutation_ga = pmutation_ga, parallel_ga = parallel_ga, seed_ga = 123,
-#'   iterations_grad = iterations_grad, ncores_grad = ncores_grad,
-#'   theta_difference_threshold = theta_difference_threshold, fit_loss_threshold = fit_loss_threshold, ncores = ncores
+#'   max_epochs = max_epochs,
+#'   early_stop = early_stop,
+#'   popSize_ga = popSize_ga,
+#'   maxiter_ga = maxiter_ga,
+#'   pcrossover_ga = pcrossover_ga,
+#'   pmutation_ga = pmutation_ga,
+#'   parallel_ga = parallel_ga,
+#'   seed_ga = 123,
+#'   iterations_grad = iterations_grad,
+#'   ncores_grad = ncores_grad,
+#'   theta_difference_threshold = theta_difference_threshold,
+#'   fit_loss_threshold = fit_loss_threshold,
+#'   ncores = ncores
 #' )
-#' base::saveRDS(interest_cell_type_branch_model_train, file = "./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds")
+#' base::saveRDS(
+#'   interest_cell_type_branch_model_train,
+#'   file = "./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds"
+#' )
 #' }
 model_train = function (
     interest_cell_type_branch_training_set = interest_cell_type_branch_training_set,
     interest_cell_type_branch_init_params = interest_cell_type_branch_init_params,
     interest_cell_type_group = interest_cell_type_group,
-    interest_cell_type_tao = interest_cell_type_tao,
+    interest_cell_type_tau = interest_cell_type_tau,
     interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
     max_epochs = 1000, early_stop = 10,
     eps_theta = 1e-3, eps_loss = 1e-5,
@@ -182,7 +202,7 @@ model_train = function (
                                      branch_params_list = interest_cell_type_branch_init_params[[cell_type]][[base::paste0("branch", n)]][[re]],
                                      train_data = base::as.matrix(interest_cell_type_branch_training_set[[cell_type]][[n]][re, , drop = FALSE]),
                                      Tslot_K = interest_cell_type_group[[cell_type]][["Branches_Tslot_k"]][[n]],
-                                     tao = interest_cell_type_tao[cell_type],
+                                     tau = interest_cell_type_tau[cell_type],
                                      popSize_ga = popSize_ga,
                                      max_epochs = max_epochs,
                                      pcrossover_ga = pcrossover_ga,
@@ -217,7 +237,7 @@ model_train = function (
         result[["Tslot_K"]] = Tslot_K
 
         message(Signal, "Extracting the binary classification threshold for regulatory strength.")
-        result[["tao"]] = tao
+        result[["tau"]] = tau
 
         message(Signal, "Initializing the objective function value in model training.")
         f_value_train = 1e+5 + 1
@@ -247,11 +267,11 @@ model_train = function (
 
           # Genetic Algorithm Training
           result_ga = GA::ga(
-            type = "real-valued", fitness = scDEDS::f_train_cal, lower = params_lower, upper = params_upper,
+            type = "real-valued", fitness = scDEDM::f_train_cal, lower = params_lower, upper = params_upper,
             popSize = popSize_ga, pcrossover = pcrossover_ga, pmutation = pmutation_ga,
             elitism = base::ceiling(base::min(0.2 * maxiter_ga, popSize_ga / 5)),
             maxiter = maxiter_ga, suggestions = prev_population, parallel = parallel_ga, seed = seed_ga, monitor = FALSE,
-            params_names = params_names, train_data = train_data, tao = tao, Tslot_K = Tslot_K
+            params_names = params_names, train_data = train_data, tau = tau, Tslot_K = Tslot_K
           )
           if (parallel_ga) {
             prev_population = base::matrix(
@@ -259,10 +279,10 @@ model_train = function (
               nrow = popSize_ga, ncol = base::length(params), byrow = TRUE
             )
             result_ga = GA::ga(
-              type = "real-valued", fitness = scDEDS::f_train_cal, lower = params_lower, upper = params_upper,
+              type = "real-valued", fitness = scDEDM::f_train_cal, lower = params_lower, upper = params_upper,
               popSize = popSize_ga, elitism = base::ceiling(base::min(0.2 * maxiter_ga, popSize_ga / 5)),
               maxiter = 1, suggestions = prev_population, parallel = FALSE, seed = seed_ga, monitor = FALSE,
-              params_names = params_names, train_data = train_data, tao = tao, Tslot_K = Tslot_K
+              params_names = params_names, train_data = train_data, tau = tau, Tslot_K = Tslot_K
             ); base::gc()
           }
           f_value_train = -result_ga@fitnessValue
@@ -273,7 +293,7 @@ model_train = function (
             init_theta = base::as.numeric(result_ga@solution[1, ]),
             h_max = 1e-9, h_min_percent = 0.01, ncores = ncores_grad,
             params_lower = params_lower, params_upper = params_upper, monitor = FALSE,
-            params_names = params_names, train_data = train_data, tao = tao, Tslot_K = Tslot_K
+            params_names = params_names, train_data = train_data, tau = tau, Tslot_K = Tslot_K
           )
           f_value_train = -result_gradient$objective_value
           f_value_train_vec[epoch] = f_value_train
@@ -287,10 +307,10 @@ model_train = function (
           result[["para_data_frame"]] = para_data_frame
 
           # Calcalating loss.
-          loss_train[epoch] = scDEDS::loss_cal(
+          loss_train[epoch] = scDEDM::loss_cal(
             data = train_data,
             params = result_gradient$parameters, params_names = params_names,
-            tao = tao, Tslot_K = Tslot_K
+            tau = tau, Tslot_K = Tslot_K
           )
 
           # Early Stopping Strategy
@@ -309,12 +329,12 @@ model_train = function (
             result[["best_params"]] = best_params
 
             best_pred_result_re[re, base::paste0("fit_loss_branch", n)] = loss_vec[best_epoch]
-            best_pred_result_re[re, base::paste0("theta_p_branch", n)] = scDEDS::theta_p_cal(
+            best_pred_result_re[re, base::paste0("theta_p_branch", n)] = scDEDM::theta_p_cal(
               data = train_data,
               best_params = best_params, params_names = params_names,
-              tao = tao, Tslot_K = Tslot_K
+              tau = tau, Tslot_K = Tslot_K
             )
-            best_pred_result_re[re, base::paste0("theta_p_bin_branch", n)] = base::ifelse(best_pred_result_re[re, base::paste0("theta_p_branch", n)] >= tao, 1, 0)
+            best_pred_result_re[re, base::paste0("theta_p_bin_branch", n)] = base::ifelse(best_pred_result_re[re, base::paste0("theta_p_branch", n)] >= tau, 1, 0)
             result[["best_pred_result_re"]] = best_pred_result_re
 
             stop_cause = "maximum training epochs reached."
@@ -335,12 +355,12 @@ model_train = function (
             result[["best_params"]] = best_params
 
             best_pred_result_re[re, base::paste0("fit_loss_branch", n)] = loss_vec[best_epoch]
-            best_pred_result_re[re, base::paste0("theta_p_branch", n)] = scDEDS::theta_p_cal(
+            best_pred_result_re[re, base::paste0("theta_p_branch", n)] = scDEDM::theta_p_cal(
               data = train_data,
               best_params = best_params, params_names = params_names,
-              tao = tao, Tslot_K = Tslot_K
+              tau = tau, Tslot_K = Tslot_K
             )
-            best_pred_result_re[re, base::paste0("theta_p_bin_branch", n)] = base::ifelse(best_pred_result_re[re, base::paste0("theta_p_branch", n)] >= tao, 1, 0)
+            best_pred_result_re[re, base::paste0("theta_p_bin_branch", n)] = base::ifelse(best_pred_result_re[re, base::paste0("theta_p_branch", n)] >= tau, 1, 0)
             result[["best_pred_result_re"]] = best_pred_result_re
 
             if (best_epoch <= base::length(loss_vec) - early_stop + 1) {
@@ -381,7 +401,7 @@ model_train = function (
             branch_params_list = interest_cell_type_branch_init_params[[cell_type]][[base::paste0("branch", n)]][[re]],
             train_data = base::as.matrix(interest_cell_type_branch_training_set[[cell_type]][[n]][re, , drop = FALSE]),
             Tslot_K = interest_cell_type_group[[cell_type]][["Branches_Tslot_k"]][[n]],
-            tao = interest_cell_type_tao[cell_type],
+            tau = interest_cell_type_tau[cell_type],
             popSize_ga = popSize_ga,
             max_epochs = max_epochs,
             pcrossover_ga = pcrossover_ga,

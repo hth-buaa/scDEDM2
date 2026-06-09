@@ -7,7 +7,7 @@
 infer_GRN(
   interest_cell_type_branch_data_for_GRN_infer =
     interest_cell_type_branch_data_for_GRN_infer,
-  interest_cell_type_tao = interest_cell_type_tao,
+  interest_cell_type_tau = interest_cell_type_tau,
   interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
   interest_cell_type_group = interest_cell_type_group,
   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
@@ -20,7 +20,7 @@ infer_GRN(
 \arguments{
 \item{interest_cell_type_branch_data_for_GRN_infer}{The output of function get_data_for_inferring_GRN.}
 
-\item{interest_cell_type_tao}{The output of function get_cell_type_tao.}
+\item{interest_cell_type_tau}{The output of function get_cell_type_tau.}
 
 \item{interest_cell_type_branch_model_train}{The output of function model_train.}
 
@@ -78,11 +78,19 @@ Important considerations:
 }
 \examples{
 \dontrun{
-interest_cell_type_branch_data_for_GRN_infer = base::readRDS("./5 Infer GRN/interest_cell_type_branch_data_for_GRN_infer.rds")
-interest_cell_type_tao = base::readRDS("./3 get iGRN/interest_cell_type_tao.rds")
-interest_cell_type_branch_model_train = base::readRDS("./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds")
-interest_cell_type_group = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds")
-interest_cell_type_genes_pseudotime_info = base::readRDS("./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds")
+interest_cell_type_branch_data_for_GRN_infer = base::readRDS(
+  "./5 Infer GRN/interest_cell_type_branch_data_for_GRN_infer.rds"
+)
+interest_cell_type_tau = base::readRDS("./3 get iGRN/interest_cell_type_tau.rds")
+interest_cell_type_branch_model_train = base::readRDS(
+  "./4.2 BUild Prediction Model/interest_cell_type_branch_model_train.rds"
+)
+interest_cell_type_group = base::readRDS(
+  "./2.2 Data Processing - Cell Grouping/interest_cell_type_group.rds"
+)
+interest_cell_type_genes_pseudotime_info = base::readRDS(
+  "./2.2 Data Processing - Cell Grouping/interest_cell_type_genes_pseudotime_info.rds"
+)
 each = 1000
 ncores = parallel::detectCores() - 1 # in Linux
 # ncores = 1 # in Windows
@@ -90,7 +98,7 @@ ncores = parallel::detectCores() - 1 # in Linux
 # way 1: one step (If the running memory is sufficient)
 interest_cell_type_pGRN = infer_GRN(
   interest_cell_type_branch_data_for_GRN_infer = interest_cell_type_branch_data_for_GRN_infer,
-  interest_cell_type_tao = interest_cell_type_tao,
+  interest_cell_type_tau = interest_cell_type_tau,
   interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
   interest_cell_type_group = interest_cell_type_group,
   interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
@@ -102,7 +110,9 @@ interest_cell_type_pGRN = infer_GRN(
 base::saveRDS(interest_cell_type_pGRN, file = "./5 Infer GRN/interest_cell_type_pGRN.rds")
 
 # way 2: more steps but stable
-# If the process is terminated due to memory issues, you can manually continue running it branch by branch (saving the results to interest_cell_type_pGRN).
+# If the process is terminated due to memory issues,
+# you can manually continue running it branch by branch
+# (saving the results to interest_cell_type_pGRN).
 interest_cell_type_pGRN = base::list()
 for (cell_type in base::names(interest_cell_type_branch_data_for_GRN_infer)) {
   message("Infer cell type ", cell_type, ".")
@@ -111,7 +121,7 @@ for (cell_type in base::names(interest_cell_type_branch_data_for_GRN_infer)) {
     message("Infer cell type ", cell_type, " branch ", n, ".")
     interest_cell_type_pGRN[[cell_type]][[base::paste0("branch", n)]] = infer_GRN(
       interest_cell_type_branch_data_for_GRN_infer = interest_cell_type_branch_data_for_GRN_infer,
-      interest_cell_type_tao = interest_cell_type_tao,
+      interest_cell_type_tau = interest_cell_type_tau,
       interest_cell_type_branch_model_train = interest_cell_type_branch_model_train,
       interest_cell_type_group = interest_cell_type_group,
       interest_cell_type_genes_pseudotime_info = interest_cell_type_genes_pseudotime_info,
@@ -126,5 +136,5 @@ base::saveRDS(interest_cell_type_pGRN, file = "./5 Infer GRN/interest_cell_type_
 }
 }
 \seealso{
-\code{\link[scDEDS]{R_cal}}, \code{\link[scDEDS]{Hill_cal}}, \code{\link[scDEDS]{S_cal}}
+\code{\link[scDEDM]{R_cal}}, \code{\link[scDEDM]{Hill_cal}}, \code{\link[scDEDM]{S_cal}}
 }

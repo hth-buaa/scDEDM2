@@ -51,6 +51,9 @@ TFs_in_JASPAR2024 = get_TGs_from_JASPAR2024(
   species = "Homo sapiens",
   collection = "CORE"
 )
-base::saveRDS(TFs_in_JASPAR2024, file = "./1.2 Data Preprocessing - Get TGs From JASPAR2024/TFs_in_JASPAR2024.rds")
+base::saveRDS(
+  TFs_in_JASPAR2024,
+  file = "./1.2 Data Preprocessing - Get TGs From JASPAR2024/TFs_in_JASPAR2024.rds"
+)
 }
 }
