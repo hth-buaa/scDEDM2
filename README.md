@@ -1,4 +1,4 @@
-# scDEDM: Inference of Enhancer-Gene Regulatory Networks from Cell-matched scRNA-seq and scATAC-seq Data
+# scDEDM: A Discrete Evolutionary Dynamical Model for eGRN Inference from Single-Cell Matched Multi-omics Data
 
 ## Project Overview
 scDEDM is an R package designed to construct enhancer-gene regulatory networks (eGRNs) by integrating paired single-cell RNA sequencing (scRNA-seq) and single-cell assay for transposase-accessible chromatin sequencing (scATAC-seq) data. To infer high-confidence regulatory relationships between transcription factors (TFs), chromatin accessibility peaks, and target genes (TGs), it leverages pseudotemporal ordering, transcription factor binding site (TFBS) prediction, a discrete evolutionary dynamical model (based on Transcription Factor Expression (TFE), Target Gene Activity (TGA), and Target Gene Expression (TGE))，and a hybrid optimization approach (combining genetic algorithms and gradient ascent). 
